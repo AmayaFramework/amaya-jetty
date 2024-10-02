@@ -1,4 +1,10 @@
-open module io.github.amayaframework.jetty {
+module io.github.amayaframework.jetty {
+    // Imports
+    requires jetty.servlet.api;
+    requires org.eclipse.jetty.server;
+    requires io.github.amayaframework.http;
+    requires io.github.amayaframework.context;
+    requires io.github.amayaframework.server;
     // Exports
     exports io.github.amayaframework.jetty;
 }
