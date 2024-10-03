@@ -4,7 +4,7 @@ import io.github.amayaframework.server.PathTokenizer;
 
 import java.util.*;
 
-final class PathTokenizerImpl implements PathTokenizer {
+final class JettyPathTokenizer implements PathTokenizer {
     private static final List<String> SINGLE = List.of("/");
 
     @Override

@@ -15,7 +15,7 @@ public class Main {
                                Request baseRequest,
                                HttpServletRequest request,
                                HttpServletResponse response) {
-                var tok = new PathTokenizerImpl();
+                var tok = new JettyPathTokenizer();
                 var t = tok.tokenize(baseRequest.getRequestURI());
                 System.out.println(t);
                 baseRequest.setHandled(true);

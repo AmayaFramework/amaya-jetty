@@ -4,7 +4,7 @@ import io.github.amayaframework.http.MimeData;
 import io.github.amayaframework.http.MimeType;
 import io.github.amayaframework.server.MimeParser;
 
-final class MimeParserImpl implements MimeParser {
+final class JettyMimeParser implements MimeParser {
 
     private static MimeType parseType(String type) {
         var ret = MimeType.of(type);

@@ -26,6 +26,5 @@ final class JettyHandler extends AbstractHandler {
                        Request baseRequest,
                        HttpServletRequest request,
                        HttpServletResponse response) throws IOException, ServletException {
-
     }
 }
