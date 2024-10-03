@@ -1,5 +1,6 @@
 module io.github.amayaframework.jetty {
     // Imports
+    requires com.github.romanqed.jfunc;
     requires jetty.servlet.api;
     requires org.eclipse.jetty.server;
     requires io.github.amayaframework.http;
