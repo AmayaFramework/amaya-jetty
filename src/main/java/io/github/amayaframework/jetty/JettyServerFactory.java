@@ -15,14 +15,17 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 /**
- *
+ * A class that implements {@link HttpServerFactory}. Creates an implementations of {@link HttpServer}
+ * based on jetty {@link Server}.
  */
 public final class JettyServerFactory implements HttpServerFactory {
     private final JettyFactory factory;
     private final Supplier<ThreadPool> supplier;
 
     /**
-     * @param factory
+     * Constructs a {@link JettyServerFactory} instance with the given {@link JettyFactory}.
+     *
+     * @param factory the specified factory that will be used to create the {@link Server} instance
      */
     public JettyServerFactory(JettyFactory factory) {
         this.factory = factory;
@@ -30,7 +33,9 @@ public final class JettyServerFactory implements HttpServerFactory {
     }
 
     /**
-     * @param supplier
+     * Constructs a {@link JettyServerFactory} instance with the given supplier of {@link ThreadPool}.
+     *
+     * @param supplier the specified supplier provides {@link ThreadPool} instance
      */
     public JettyServerFactory(Supplier<ThreadPool> supplier) {
         this.factory = null;
@@ -38,7 +43,8 @@ public final class JettyServerFactory implements HttpServerFactory {
     }
 
     /**
-     *
+     * Constructs a {@link JettyServerFactory} instance which will use the default settings
+     * ({@link org.eclipse.jetty.util.thread.QueuedThreadPool} and {@link Server} with sessions support).
      */
     public JettyServerFactory() {
         this.factory = null;

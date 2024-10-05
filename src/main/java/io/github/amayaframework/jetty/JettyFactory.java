@@ -5,20 +5,24 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 
 /**
- *
+ * An interface describing an abstract jetty {@link Server} factory.
  */
 public interface JettyFactory {
 
     /**
-     * @param handler
-     * @param options
-     * @return
+     * Creates a {@link Server} instance with the specified {@link Handler} implementation and {@link OptionSet}.
+     *
+     * @param handler the final handler that contains the logic for processing the http request, must be executed last
+     * @param options the option set containing jetty server options
+     * @return the {@link Server} instance
      */
     Server create(Handler handler, OptionSet options);
 
     /**
-     * @param handler
-     * @return
+     * Creates a {@link Server} instance with the specified {@link Handler} implementation.
+     *
+     * @param handler the final handler that contains the logic for processing the http request, must be executed last
+     * @return the {@link Server} instance
      */
     Server create(Handler handler);
 }
