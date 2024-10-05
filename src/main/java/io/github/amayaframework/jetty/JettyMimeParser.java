@@ -2,6 +2,7 @@ package io.github.amayaframework.jetty;
 
 import io.github.amayaframework.http.MimeData;
 import io.github.amayaframework.http.MimeType;
+import io.github.amayaframework.server.IllegalMimeType;
 import io.github.amayaframework.server.MimeParser;
 
 final class JettyMimeParser implements MimeParser {
