@@ -23,12 +23,6 @@ final class WrappedHttpRequest implements HttpServletRequest {
     }
 
     @Override
-    public void setCharacterEncoding(String s) throws UnsupportedEncodingException {
-        servletRequest.setCharacterEncoding(s);
-        request.updateCharset(Charset.forName(s));
-    }
-
-    @Override
     public String getAuthType() {
         return servletRequest.getAuthType();
     }
@@ -202,6 +196,12 @@ final class WrappedHttpRequest implements HttpServletRequest {
     @Override
     public String getCharacterEncoding() {
         return servletRequest.getCharacterEncoding();
+    }
+
+    @Override
+    public void setCharacterEncoding(String s) throws UnsupportedEncodingException {
+        servletRequest.setCharacterEncoding(s);
+        request.updateCharset(Charset.forName(s));
     }
 
     @Override

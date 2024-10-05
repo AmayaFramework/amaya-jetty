@@ -44,8 +44,12 @@ final class JettyRequest extends AbstractHttpRequest {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected Map<String, List<Object>> collectQueries() {
         var query = request.getQueryString();
+        if (query == null) {
+            return Collections.EMPTY_MAP;
+        }
         var ret = new HashMap<String, List<Object>>();
         var tokenizer = new StringTokenizer(query, "&");
         while (tokenizer.hasMoreTokens()) {

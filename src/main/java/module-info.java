@@ -3,6 +3,7 @@ module io.github.amayaframework.jetty {
     requires com.github.romanqed.jfunc;
     requires jetty.servlet.api;
     requires org.eclipse.jetty.server;
+    requires io.github.amayaframework.options;
     requires io.github.amayaframework.http;
     requires io.github.amayaframework.context;
     requires io.github.amayaframework.server;

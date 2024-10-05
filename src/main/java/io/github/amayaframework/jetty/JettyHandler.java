@@ -51,6 +51,42 @@ final class JettyHandler extends AbstractHandler {
         if (handler == null) {
             return;
         }
-        // Parse http version
+        // Parse and check http version
+        var jettyVersion = baseRequest.getHttpVersion();
+        if (jettyVersion == null) {
+            response.sendError(HttpServletResponse.SC_HTTP_VERSION_NOT_SUPPORTED, "Unknown http version");
+            baseRequest.setHandled(true);
+            return;
+        }
+        var version = HttpVersion.of(jettyVersion.getVersion());
+        if (version == null || version.after(this.version)) {
+            response.sendError(
+                    HttpServletResponse.SC_HTTP_VERSION_NOT_SUPPORTED,
+                    "Version " + jettyVersion + " not supported"
+            );
+            baseRequest.setHandled(true);
+            return;
+        }
+        // Create amaya request and response entities
+        var jettyRequest = new JettyRequest(request, version, tokenizer, parser);
+        var protocol = jettyVersion.toString();
+        var scheme = baseRequest.getScheme();
+        var jettyResponse = new JettyResponse(response, protocol, scheme, version, formatter);
+        // Create wrapped servlet entities
+        var wrappedRequest = new WrappedHttpRequest(request, jettyRequest);
+        var wrappedResponse = new WrappedHttpResponse(response, jettyResponse, version, parser);
+        // Create context
+        var context = new JettyHttpContext(jettyRequest, jettyResponse, wrappedRequest, wrappedResponse);
+        // Try to handle request
+        try {
+            // Run handler for context
+            handler.run(context);
+            // Mark request as handled
+            baseRequest.setHandled(true);
+        } catch (Error | RuntimeException | IOException | ServletException e) {
+            throw e;
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
     }
 }

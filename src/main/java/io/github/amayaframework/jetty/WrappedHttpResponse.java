@@ -1,6 +1,8 @@
 package io.github.amayaframework.jetty;
 
+import io.github.amayaframework.context.UnsupportedHttpDefinition;
 import io.github.amayaframework.http.HttpCode;
+import io.github.amayaframework.http.HttpVersion;
 import io.github.amayaframework.server.MimeParser;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.Cookie;
@@ -15,12 +17,17 @@ import java.util.Objects;
 
 final class WrappedHttpResponse implements HttpServletResponse {
     private final HttpServletResponse servletResponse;
+    private final HttpVersion version;
     private final JettyResponse response;
     private final MimeParser parser;
 
-    WrappedHttpResponse(HttpServletResponse servletResponse, JettyResponse response, MimeParser parser) {
+    WrappedHttpResponse(HttpServletResponse servletResponse,
+                        JettyResponse response,
+                        HttpVersion version,
+                        MimeParser parser) {
         this.servletResponse = servletResponse;
         this.response = response;
+        this.version = version;
         this.parser = parser;
     }
 
@@ -31,29 +38,37 @@ final class WrappedHttpResponse implements HttpServletResponse {
         response.setCookie(cookie);
     }
 
-    @Override
-    public void setStatus(int sc) {
-        servletResponse.setStatus(sc);
-        response.updateStatus(HttpCode.of(sc));
+    private HttpCode parseCode(int code) {
+        var ret = HttpCode.of(code);
+        if (ret == null) {
+            throw new IllegalArgumentException("Unknown http code");
+        }
+        if (!ret.isSupported(version)) {
+            throw new UnsupportedHttpDefinition(version, ret);
+        }
+        return ret;
     }
 
     @Override
     @SuppressWarnings("deprecation")
     public void setStatus(int sc, String sm) {
+        var code = parseCode(sc);
         servletResponse.setStatus(sc, sm);
-        response.updateStatus(HttpCode.of(sc));
+        response.updateStatus(code);
     }
 
     @Override
     public void sendError(int sc, String msg) throws IOException {
+        var code = parseCode(sc);
         servletResponse.sendError(sc, msg);
-        response.updateStatus(HttpCode.of(sc));
+        response.updateStatus(code);
     }
 
     @Override
     public void sendError(int sc) throws IOException {
+        var code = parseCode(sc);
         servletResponse.sendError(sc);
-        response.updateStatus(HttpCode.of(sc));
+        response.updateStatus(code);
     }
 
     @Override
@@ -61,12 +76,6 @@ final class WrappedHttpResponse implements HttpServletResponse {
         Objects.requireNonNull(location);
         servletResponse.sendRedirect(location);
         response.updateStatus(HttpCode.FOUND);
-    }
-
-    @Override
-    public void setCharacterEncoding(String charset) {
-        servletResponse.setCharacterEncoding(charset);
-        response.updateCharset(Charset.forName(charset));
     }
 
     @Override
@@ -82,14 +91,6 @@ final class WrappedHttpResponse implements HttpServletResponse {
     }
 
     @Override
-    public void setContentType(String type) {
-        servletResponse.setContentType(type);
-        response.updateMimeData(parser.read(type));
-    }
-
-    // Plain wrap methods
-
-    @Override
     public boolean containsHeader(String name) {
         return servletResponse.containsHeader(name);
     }
@@ -103,6 +104,8 @@ final class WrappedHttpResponse implements HttpServletResponse {
     public String encodeRedirectURL(String url) {
         return servletResponse.encodeRedirectURL(url);
     }
+
+    // Plain wrap methods
 
     @Override
     @SuppressWarnings("deprecation")
@@ -152,6 +155,16 @@ final class WrappedHttpResponse implements HttpServletResponse {
     }
 
     @Override
+    public void setStatus(int sc) {
+        var code = HttpCode.of(sc);
+        if (!code.isSupported(version)) {
+            throw new UnsupportedHttpDefinition(version, code);
+        }
+        servletResponse.setStatus(sc);
+        response.updateStatus(HttpCode.of(sc));
+    }
+
+    @Override
     public String getHeader(String name) {
         return servletResponse.getHeader(name);
     }
@@ -172,8 +185,20 @@ final class WrappedHttpResponse implements HttpServletResponse {
     }
 
     @Override
+    public void setCharacterEncoding(String charset) {
+        servletResponse.setCharacterEncoding(charset);
+        response.updateCharset(Charset.forName(charset));
+    }
+
+    @Override
     public String getContentType() {
         return servletResponse.getContentType();
+    }
+
+    @Override
+    public void setContentType(String type) {
+        servletResponse.setContentType(type);
+        response.updateMimeData(parser.read(type));
     }
 
     @Override
@@ -187,13 +212,13 @@ final class WrappedHttpResponse implements HttpServletResponse {
     }
 
     @Override
-    public void setBufferSize(int size) {
-        servletResponse.setBufferSize(size);
+    public int getBufferSize() {
+        return servletResponse.getBufferSize();
     }
 
     @Override
-    public int getBufferSize() {
-        return servletResponse.getBufferSize();
+    public void setBufferSize(int size) {
+        servletResponse.setBufferSize(size);
     }
 
     @Override
@@ -217,12 +242,12 @@ final class WrappedHttpResponse implements HttpServletResponse {
     }
 
     @Override
-    public void setLocale(Locale loc) {
-        servletResponse.setLocale(loc);
+    public Locale getLocale() {
+        return servletResponse.getLocale();
     }
 
     @Override
-    public Locale getLocale() {
-        return servletResponse.getLocale();
+    public void setLocale(Locale loc) {
+        servletResponse.setLocale(loc);
     }
 }

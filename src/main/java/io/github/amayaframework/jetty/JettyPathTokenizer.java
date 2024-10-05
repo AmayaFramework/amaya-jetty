@@ -2,7 +2,9 @@ package io.github.amayaframework.jetty;
 
 import io.github.amayaframework.server.PathTokenizer;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 final class JettyPathTokenizer implements PathTokenizer {
     private static final List<String> SINGLE = List.of("/");

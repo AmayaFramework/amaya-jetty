@@ -11,22 +11,22 @@ import java.util.Objects;
 import java.util.Set;
 
 final class JettyHttpConfig implements HttpServerConfig {
+    private static final MimeFormatter DEFAULT_FORMATTER = new JettyMimeFormatter();
+    private static final MimeParser DEFAULT_PARSER = new JettyMimeParser();
+    private static final PathTokenizer DEFAULT_TOKENIZER = new JettyPathTokenizer();
+
     final Set<InetSocketAddress> addresses;
     HttpVersion version;
     PathTokenizer tokenizer;
     MimeParser parser;
     MimeFormatter formatter;
 
-    JettyHttpConfig(Set<InetSocketAddress> addresses,
-                    HttpVersion version,
-                    PathTokenizer tokenizer,
-                    MimeParser parser,
-                    MimeFormatter formatter) {
+    JettyHttpConfig(Set<InetSocketAddress> addresses) {
         this.addresses = addresses;
-        this.version = version;
-        this.tokenizer = tokenizer;
-        this.parser = parser;
-        this.formatter = formatter;
+        this.version = HttpVersion.HTTP_1_1;
+        this.tokenizer = DEFAULT_TOKENIZER;
+        this.parser = DEFAULT_PARSER;
+        this.formatter = DEFAULT_FORMATTER;
     }
 
     @Override
@@ -36,7 +36,11 @@ final class JettyHttpConfig implements HttpServerConfig {
 
     @Override
     public void setHttpVersion(HttpVersion version) {
-        this.version = Objects.requireNonNull(version);
+        Objects.requireNonNull(version);
+        if (version.after(HttpVersion.HTTP_1_1)) {
+            throw new IllegalArgumentException("Unsupported http version: " + version);
+        }
+        this.version = version;
     }
 
     @Override
