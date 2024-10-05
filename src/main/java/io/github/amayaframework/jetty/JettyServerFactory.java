@@ -22,7 +22,6 @@ public final class JettyServerFactory implements HttpServerFactory {
     private final Supplier<ThreadPool> supplier;
 
     /**
-     *
      * @param factory
      */
     public JettyServerFactory(JettyFactory factory) {
@@ -31,7 +30,6 @@ public final class JettyServerFactory implements HttpServerFactory {
     }
 
     /**
-     *
      * @param supplier
      */
     public JettyServerFactory(Supplier<ThreadPool> supplier) {
