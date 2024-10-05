@@ -81,7 +81,7 @@ publishing {
             pom {
                 name.set(archivesBaseName)
                 description.set('The amaya-server implementation is based on jetty-server.')
-                url.set('https://github.com/AmayaFramework/amaya-jetty-server')
+                url.set('https://github.com/AmayaFramework/amaya-jetty')
 
                 organization {
                     name.set('io.github.amayaframework')
@@ -90,20 +90,20 @@ publishing {
 
                 issueManagement {
                     system.set('GitHub')
-                    url.set('https://github.com/AmayaFramework/amaya-jetty-server/issues')
+                    url.set('https://github.com/AmayaFramework/amaya-jetty/issues')
                 }
 
                 licenses {
                     license {
                         name.set('Apache License 2.0')
-                        url.set('https://github.com/AmayaFramework/amaya-jetty-server/blob/main/LICENSE')
+                        url.set('https://github.com/AmayaFramework/amaya-jetty/blob/main/LICENSE')
                     }
                 }
 
                 scm {
-                    url.set('https://github.com/AmayaFramework/amaya-jetty-server')
-                    connection.set('scm:https://github.com/AmayaFramework/amaya-jetty-server.git')
-                    developerConnection.set('scm:https://github.com/AmayaFramework/amaya-jetty-server.git')
+                    url.set('https://github.com/AmayaFramework/amaya-jetty')
+                    connection.set('scm:https://github.com/AmayaFramework/amaya-jetty.git')
+                    developerConnection.set('scm:https://github.com/AmayaFramework/amaya-jetty.git')
                 }
 
                 developers {
