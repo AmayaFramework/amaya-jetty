@@ -1,3 +1,7 @@
+/**
+ * Amaya server implementation based on jetty server.
+ * @author Roman Bakaldin
+ */
 module io.github.amayaframework.jetty {
     // Imports
     requires com.github.romanqed.jfunc;
