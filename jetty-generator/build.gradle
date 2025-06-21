@@ -47,7 +47,7 @@ jar {
                 'Build-Date': new SimpleDateFormat("yyyy-MM-dd").format(date),
                 'Build-Time': new SimpleDateFormat("HH:mm:ss.SSSZ").format(date),
                 'Built-By': 'Roman Bakaldin',
-                'Bundle-Name': 'Amaya Jetty Server',
+                'Bundle-Name': 'Jetty Strict Http Generator',
                 'Bundle-Version': archiveVersion,
                 'Bundle-SymbolicName': archivesBaseName,
                 'Implementation-Title': archivesBaseName,
