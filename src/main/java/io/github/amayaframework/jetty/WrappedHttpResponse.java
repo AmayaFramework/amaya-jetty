@@ -7,27 +7,33 @@ import io.github.amayaframework.server.MimeParser;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import org.eclipse.jetty.http.HttpStatus;
+import org.eclipse.jetty.server.Response;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Objects;
 
 final class WrappedHttpResponse implements HttpServletResponse {
-    private final HttpServletResponse servletResponse;
+    private final Response jettyResponse;
     private final HttpVersion version;
+    private final HttpCodeBuffer buffer;
     private final JettyResponse response;
     private final MimeParser parser;
 
-    WrappedHttpResponse(HttpServletResponse servletResponse,
+    WrappedHttpResponse(Response jettyResponse,
                         JettyResponse response,
                         HttpVersion version,
+                        HttpCodeBuffer buffer,
                         MimeParser parser) {
-        this.servletResponse = servletResponse;
+        this.jettyResponse = jettyResponse;
         this.response = response;
         this.version = version;
+        this.buffer = buffer;
         this.parser = parser;
     }
 
@@ -39,9 +45,9 @@ final class WrappedHttpResponse implements HttpServletResponse {
     }
 
     private HttpCode parseCode(int code) {
-        var ret = HttpCode.of(code);
+        var ret = buffer.get(code);
         if (ret == null) {
-            throw new IllegalArgumentException("Unknown http code");
+            return new HttpCode(code, null, version);
         }
         if (!ret.isSupported(version)) {
             throw new UnsupportedHttpDefinition(version, ret);
@@ -50,204 +56,231 @@ final class WrappedHttpResponse implements HttpServletResponse {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public void setStatus(int sc, String sm) {
+    public void setStatus(int sc) {
         var code = parseCode(sc);
-        servletResponse.setStatus(sc, sm);
+        if (!code.isSupported(version)) {
+            throw new UnsupportedHttpDefinition(version, code);
+        }
+        // Check if jetty server does not know about this code
+        if (HttpStatus.getCode(sc) == null) {
+            jettyResponse.setStatusWithReason(sc, code.getDescription());
+        } else {
+            jettyResponse.setStatus(sc);
+        }
         response.updateStatus(code);
+    }
+
+    @Override
+    public void setStatus(int sc, String sm) {
+        setStatus(sc);
     }
 
     @Override
     public void sendError(int sc, String msg) throws IOException {
         var code = parseCode(sc);
-        servletResponse.sendError(sc, msg);
+        if (!code.isSupported(version)) {
+            throw new UnsupportedHttpDefinition(version, code);
+        }
+        // Check if jetty server does not know about this code
+        if (HttpStatus.getCode(sc) == null) {
+            jettyResponse.setStatusWithReason(sc, code.getDescription());
+        }
+        jettyResponse.sendError(sc, msg);
         response.updateStatus(code);
     }
 
     @Override
     public void sendError(int sc) throws IOException {
         var code = parseCode(sc);
-        servletResponse.sendError(sc);
+        if (!code.isSupported(version)) {
+            throw new UnsupportedHttpDefinition(version, code);
+        }
+        // Check if jetty server does not know about this code
+        if (HttpStatus.getCode(sc) == null) {
+            jettyResponse.setStatusWithReason(sc, code.getDescription());
+        }
+        jettyResponse.sendError(sc);
         response.updateStatus(code);
     }
 
     @Override
     public void sendRedirect(String location) throws IOException {
         Objects.requireNonNull(location);
-        servletResponse.sendRedirect(location);
+        jettyResponse.sendRedirect(location);
         response.updateStatus(HttpCode.FOUND);
     }
 
     @Override
     public void setContentLength(int len) {
-        servletResponse.setContentLength(len);
+        jettyResponse.setContentLength(len);
         response.updateContentLength(len);
     }
 
     @Override
     public void setContentLengthLong(long len) {
-        servletResponse.setContentLengthLong(len);
+        jettyResponse.setContentLengthLong(len);
         response.updateContentLength(len);
     }
 
     @Override
-    public boolean containsHeader(String name) {
-        return servletResponse.containsHeader(name);
+    public void setCharacterEncoding(String charset) {
+        if (charset == null) {
+            jettyResponse.setCharacterEncoding(null);
+            response.updateCharset(StandardCharsets.ISO_8859_1);
+            return;
+        }
+        jettyResponse.setCharacterEncoding(charset);
+        response.updateCharset(Charset.forName(charset));
     }
 
     @Override
-    public String encodeURL(String url) {
-        return servletResponse.encodeURL(url);
-    }
-
-    @Override
-    public String encodeRedirectURL(String url) {
-        return servletResponse.encodeRedirectURL(url);
+    public void setContentType(String type) {
+        if (type == null) {
+            jettyResponse.setContentType(null);
+            response.updateMimeData(null);
+            return;
+        }
+        var data = parser.read(type);
+        jettyResponse.setContentType(type);
+        response.updateMimeData(data);
     }
 
     // Plain wrap methods
 
     @Override
+    public boolean containsHeader(String name) {
+        return jettyResponse.containsHeader(name);
+    }
+
+    @Override
+    public String encodeURL(String url) {
+        return jettyResponse.encodeURL(url);
+    }
+
+    @Override
+    public String encodeRedirectURL(String url) {
+        return jettyResponse.encodeRedirectURL(url);
+    }
+
+    @Override
     @SuppressWarnings("deprecation")
     public String encodeUrl(String url) {
-        return servletResponse.encodeUrl(url);
+        return jettyResponse.encodeUrl(url);
     }
 
     @Override
     @SuppressWarnings("deprecation")
     public String encodeRedirectUrl(String url) {
-        return servletResponse.encodeRedirectUrl(url);
+        return jettyResponse.encodeRedirectUrl(url);
     }
 
     @Override
     public void setDateHeader(String name, long date) {
-        servletResponse.setDateHeader(name, date);
+        jettyResponse.setDateHeader(name, date);
     }
 
     @Override
     public void addDateHeader(String name, long date) {
-        servletResponse.setDateHeader(name, date);
+        jettyResponse.setDateHeader(name, date);
     }
 
     @Override
     public void setHeader(String name, String value) {
-        servletResponse.setHeader(name, value);
+        jettyResponse.setHeader(name, value);
     }
 
     @Override
     public void addHeader(String name, String value) {
-        servletResponse.addHeader(name, value);
+        jettyResponse.addHeader(name, value);
     }
 
     @Override
     public void setIntHeader(String name, int value) {
-        servletResponse.setIntHeader(name, value);
+        jettyResponse.setIntHeader(name, value);
     }
 
     @Override
     public void addIntHeader(String name, int value) {
-        servletResponse.addIntHeader(name, value);
+        jettyResponse.addIntHeader(name, value);
     }
 
     @Override
     public int getStatus() {
-        return servletResponse.getStatus();
-    }
-
-    @Override
-    public void setStatus(int sc) {
-        var code = HttpCode.of(sc);
-        if (!code.isSupported(version)) {
-            throw new UnsupportedHttpDefinition(version, code);
-        }
-        servletResponse.setStatus(sc);
-        response.updateStatus(HttpCode.of(sc));
+        return jettyResponse.getStatus();
     }
 
     @Override
     public String getHeader(String name) {
-        return servletResponse.getHeader(name);
+        return jettyResponse.getHeader(name);
     }
 
     @Override
     public Collection<String> getHeaders(String name) {
-        return servletResponse.getHeaders(name);
+        return jettyResponse.getHeaders(name);
     }
 
     @Override
     public Collection<String> getHeaderNames() {
-        return servletResponse.getHeaderNames();
+        return jettyResponse.getHeaderNames();
     }
 
     @Override
     public String getCharacterEncoding() {
-        return servletResponse.getCharacterEncoding();
-    }
-
-    @Override
-    public void setCharacterEncoding(String charset) {
-        servletResponse.setCharacterEncoding(charset);
-        response.updateCharset(Charset.forName(charset));
+        return jettyResponse.getCharacterEncoding();
     }
 
     @Override
     public String getContentType() {
-        return servletResponse.getContentType();
-    }
-
-    @Override
-    public void setContentType(String type) {
-        servletResponse.setContentType(type);
-        response.updateMimeData(parser.read(type));
+        return jettyResponse.getContentType();
     }
 
     @Override
     public ServletOutputStream getOutputStream() throws IOException {
-        return servletResponse.getOutputStream();
+        return jettyResponse.getOutputStream();
     }
 
     @Override
     public PrintWriter getWriter() throws IOException {
-        return servletResponse.getWriter();
+        return jettyResponse.getWriter();
     }
 
     @Override
     public int getBufferSize() {
-        return servletResponse.getBufferSize();
+        return jettyResponse.getBufferSize();
     }
 
     @Override
     public void setBufferSize(int size) {
-        servletResponse.setBufferSize(size);
+        jettyResponse.setBufferSize(size);
     }
 
     @Override
     public void flushBuffer() throws IOException {
-        servletResponse.flushBuffer();
+        jettyResponse.flushBuffer();
     }
 
     @Override
     public void resetBuffer() {
-        servletResponse.resetBuffer();
+        jettyResponse.resetBuffer();
     }
 
     @Override
     public boolean isCommitted() {
-        return servletResponse.isCommitted();
+        return jettyResponse.isCommitted();
     }
 
     @Override
     public void reset() {
-        servletResponse.reset();
+        jettyResponse.reset();
     }
 
     @Override
     public Locale getLocale() {
-        return servletResponse.getLocale();
+        return jettyResponse.getLocale();
     }
 
     @Override
     public void setLocale(Locale loc) {
-        servletResponse.setLocale(loc);
+        jettyResponse.setLocale(loc);
     }
 }
