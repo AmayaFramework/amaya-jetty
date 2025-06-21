@@ -6,20 +6,23 @@ import io.github.amayaframework.http.HttpCode;
 import io.github.amayaframework.http.HttpVersion;
 import io.github.amayaframework.http.MimeData;
 import io.github.amayaframework.server.MimeFormatter;
-import jakarta.servlet.http.HttpServletResponse;
+import org.eclipse.jetty.http.HttpStatus;
+import org.eclipse.jetty.server.Response;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 
 final class JettyResponse extends AbstractHttpResponse {
+    private final Response jettyResponse;
     private final MimeFormatter formatter;
 
-    JettyResponse(HttpServletResponse response,
+    JettyResponse(Response response,
                   String protocol,
                   String scheme,
                   HttpVersion version,
                   MimeFormatter formatter) {
         super(response, protocol, scheme, version);
+        this.jettyResponse = response;
         this.formatter = formatter;
     }
 
@@ -44,7 +47,14 @@ final class JettyResponse extends AbstractHttpResponse {
         if (!code.isSupported(version)) {
             throw new UnsupportedHttpDefinition(version, code);
         }
-        super.setStatus(code);
+        var raw = code.getCode();
+        // Check if jetty server does not know about this code
+        if (HttpStatus.getCode(raw) == null) {
+            jettyResponse.setStatusWithReason(raw, code.getDescription());
+        } else {
+            jettyResponse.setStatus(raw);
+        }
+        this.status = code;
     }
 
     @Override
@@ -52,7 +62,13 @@ final class JettyResponse extends AbstractHttpResponse {
         if (!code.isSupported(version)) {
             throw new UnsupportedHttpDefinition(version, code);
         }
-        super.sendError(code, message);
+        var raw = code.getCode();
+        // Check if jetty server does not know about this code
+        if (HttpStatus.getCode(raw) == null) {
+            jettyResponse.setStatusWithReason(raw, code.getDescription());
+        }
+        jettyResponse.sendError(raw, message);
+        this.status = code;
     }
 
     @Override
@@ -60,7 +76,13 @@ final class JettyResponse extends AbstractHttpResponse {
         if (!code.isSupported(version)) {
             throw new UnsupportedHttpDefinition(version, code);
         }
-        super.sendError(code);
+        var raw = code.getCode();
+        // Check if jetty server does not know about this code
+        if (HttpStatus.getCode(raw) == null) {
+            jettyResponse.setStatusWithReason(raw, code.getDescription());
+        }
+        jettyResponse.sendError(raw);
+        this.status = code;
     }
 
     @Override

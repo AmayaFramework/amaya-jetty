@@ -2,14 +2,13 @@ package io.github.amayaframework.jetty;
 
 import com.github.romanqed.jtype.JType;
 import io.github.amayaframework.http.HttpVersion;
-import io.github.amayaframework.jetty.old.JettyServerFactory;
 import io.github.amayaframework.options.Key;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
 
 /**
- * A class containing the keys for the server options supported by the {@link JettyServerFactory}.
+ * A class containing the keys for the server options supported by the {@code JettyServerFactory}.
  */
 public final class JettyOptions {
 
