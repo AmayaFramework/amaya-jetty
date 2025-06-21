@@ -553,7 +553,7 @@ public final class StrictHttpGenerator extends HttpGenerator {
         }
     }
 
-    private void generateResponseLine(MetaData.Response response, ByteBuffer header) {
+    private static void generateResponseLine(MetaData.Response response, ByteBuffer header) {
         // Look for prepared response line
         var version = response.getHttpVersion();
         var status = response.getStatus();
