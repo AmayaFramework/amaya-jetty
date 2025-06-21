@@ -397,8 +397,9 @@ public final class StrictHttpGenerator extends HttpGenerator {
         // handle the content.
         if (len > 0) {
             if (isChunking()) {
-                if (chunk == null)
+                if (chunk == null) {
                     return Result.NEED_CHUNK;
+                }
                 BufferUtil.clearToFill(chunk);
                 prepareChunk(chunk, len);
                 BufferUtil.flipToFlush(chunk, 0);
