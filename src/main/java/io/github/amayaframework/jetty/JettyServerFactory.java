@@ -33,10 +33,11 @@ public class JettyServerFactory implements HttpServerFactory {
     private final Path root;
 
     /**
+     * Constructs a factory using the given Jetty server factory, handler configurer, and root directory.
      *
-     * @param factory
-     * @param configurer
-     * @param root
+     * @param factory    the specified jetty server factory
+     * @param configurer the specified handler configurer
+     * @param root       the specified root path for the server
      */
     public JettyServerFactory(JettyFactory factory, JettyHandlerConfigurer configurer, Path root) {
         this.factory = factory;
@@ -49,27 +50,30 @@ public class JettyServerFactory implements HttpServerFactory {
     }
 
     /**
+     * Constructs a factory using the given Jetty server factory and handler configurer.
      *
-     * @param factory
-     * @param configurer
+     * @param factory    the specified jetty server factory
+     * @param configurer the specified handler configurer
      */
     public JettyServerFactory(JettyFactory factory, JettyHandlerConfigurer configurer) {
         this(factory, configurer, null);
     }
 
     /**
+     * Constructs a factory using the given Jetty server factory and root directory.
      *
-     * @param factory
-     * @param root
+     * @param factory the specified jetty server factory
+     * @param root    the specified root path for the server
      */
     public JettyServerFactory(JettyFactory factory, Path root) {
         this(factory, null, root);
     }
 
     /**
+     * Constructs a factory using the given handler configurer and root directory.
      *
-     * @param configurer
-     * @param root
+     * @param configurer the specified handler configurer
+     * @param root       the specified root path for the server
      */
     public JettyServerFactory(JettyHandlerConfigurer configurer, Path root) {
         this.factory = null;
@@ -82,16 +86,18 @@ public class JettyServerFactory implements HttpServerFactory {
     }
 
     /**
+     * Constructs a factory using the given Jetty server factory.
      *
-     * @param factory
+     * @param factory the specified jetty server factory
      */
     public JettyServerFactory(JettyFactory factory) {
         this(factory, null, null);
     }
 
     /**
+     * Constructs a factory using the given handler configurer.
      *
-     * @param configurer
+     * @param configurer the specified handler configurer
      */
     public JettyServerFactory(JettyHandlerConfigurer configurer) {
         this.factory = null;
@@ -100,8 +106,9 @@ public class JettyServerFactory implements HttpServerFactory {
     }
 
     /**
+     * Constructs a factory using the given root directory.
      *
-     * @param root
+     * @param root the specified root path for the server
      */
     public JettyServerFactory(Path root) {
         this.factory = null;
@@ -114,10 +121,11 @@ public class JettyServerFactory implements HttpServerFactory {
     }
 
     /**
+     * Constructs a factory using the given thread pool supplier, handler configurer, and root directory.
      *
-     * @param supplier
-     * @param configurer
-     * @param root
+     * @param supplier   the specified thread pool supplier
+     * @param configurer the specified handler configurer
+     * @param root       the specified root path for the server
      */
     public JettyServerFactory(Supplier<ThreadPool> supplier, JettyHandlerConfigurer configurer, Path root) {
         Objects.requireNonNull(supplier);
@@ -131,33 +139,36 @@ public class JettyServerFactory implements HttpServerFactory {
     }
 
     /**
+     * Constructs a factory using the given thread pool supplier and handler configurer.
      *
-     * @param supplier
-     * @param configurer
+     * @param supplier   the specified thread pool supplier
+     * @param configurer the specified handler configurer
      */
     public JettyServerFactory(Supplier<ThreadPool> supplier, JettyHandlerConfigurer configurer) {
         this(supplier, configurer, null);
     }
 
     /**
+     * Constructs a factory using the given thread pool supplier and root directory.
      *
-     * @param supplier
-     * @param root
+     * @param supplier the specified thread pool supplier
+     * @param root     the specified root path for the server
      */
     public JettyServerFactory(Supplier<ThreadPool> supplier, Path root) {
         this(supplier, null, root);
     }
 
     /**
+     * Constructs a factory using the given thread pool supplier.
      *
-     * @param supplier
+     * @param supplier the specified thread pool supplier
      */
     public JettyServerFactory(Supplier<ThreadPool> supplier) {
         this(supplier, null, null);
     }
 
     /**
-     *
+     * Constructs a factory with default settings and no customization.
      */
     public JettyServerFactory() {
         this.factory = null;
