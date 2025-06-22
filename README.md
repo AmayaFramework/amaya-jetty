@@ -20,18 +20,53 @@ To install it, you will need:
 
 ```Groovy
 dependencies {
-    implementation group: 'com.github.romanqed', name: 'amaya-jetty', version: '1.0.1'
+    implementation group: 'com.github.romanqed', name: 'amaya-jetty', version: '1.1.0'
+    // For alpn support (for ssl + http2, optionally)
+    implementation group: 'org.eclipse.jetty', name: 'jetty-alpn-server', version: '11.0.25'
+    implementation group: 'org.eclipse.jetty', name: 'jetty-alpn-java-server', version: '11.0.25'
+    // For http2 support (optionally)
+    implementation group: 'org.eclipse.jetty.http2', name: 'http2-server', version: '11.0.25'
+    // For http3 support (optionally)
+    implementation group: 'org.eclipse.jetty.http3', name: 'http3-server', version: '11.0.25'
 }
 ```
 
 ### Maven dependency
 
 ```
-<dependency>
-    <groupId>io.github.amayaframework</groupId>
-    <artifactId>amaya-jetty</artifactId>
-    <version>1.0.1</version>
-</dependency>
+<dependencies>
+    <dependency>
+        <groupId>com.github.romanqed</groupId>
+        <artifactId>amaya-jetty</artifactId>
+        <version>1.1.0</version>
+    </dependency>
+
+    <!-- For ALPN support (for SSL + HTTP/2, optionally) -->
+    <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-alpn-server</artifactId>
+        <version>11.0.25</version>
+    </dependency>
+    <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-alpn-java-server</artifactId>
+        <version>11.0.25</version>
+    </dependency>
+
+    <!-- For HTTP/2 support (optionally) -->
+    <dependency>
+        <groupId>org.eclipse.jetty.http2</groupId>
+        <artifactId>http2-server</artifactId>
+        <version>11.0.25</version>
+    </dependency>
+
+    <!-- For HTTP/3 support (optionally) -->
+    <dependency>
+        <groupId>org.eclipse.jetty.http3</groupId>
+        <artifactId>http3-server</artifactId>
+        <version>11.0.25</version>
+    </dependency>
+</dependencies>
 ```
 
 ## Examples
@@ -89,13 +124,11 @@ public class Main {
 import io.github.amayaframework.jetty.JettyFactory;
 import io.github.amayaframework.jetty.JettyServerFactory;
 import io.github.amayaframework.options.OptionSet;
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.session.SessionHandler;
 
 public class Main {
     public static void main(String[] args) throws Throwable {
-        var factory = new JettyServerFactory(new MyServerFactory());
+        var factory = new JettyServerFactory(() -> new Server());
         var server = factory.create();
         server.setHandler(ctx -> {
             var req = ctx.getRequest();
@@ -104,24 +137,6 @@ public class Main {
         });
         server.bind(8080);
         server.start();
-    }
-}
-
-final class MyServerFactory implements JettyFactory {
-
-    @Override
-    public Server create(Handler handler, OptionSet options) {
-        // Just ignore options for example
-        return create(handler);
-    }
-
-    @Override
-    public Server create(Handler handler) {
-        var ret = new Server();
-        var sessionHandler = new SessionHandler();
-        sessionHandler.setHandler(handler);
-        ret.setHandler(sessionHandler);
-        return ret;
     }
 }
 ```
