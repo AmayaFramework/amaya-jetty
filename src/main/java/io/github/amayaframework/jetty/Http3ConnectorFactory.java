@@ -23,7 +23,7 @@ final class Http3ConnectorFactory implements ConnectorFactory {
         }
         var common = options.get(JettyOptions.SSL_CONFIG);
         if (common == null) {
-            throw new IllegalArgumentException("Cannot initialize HTTP/3 without ssl config");
+            throw new IllegalArgumentException("Cannot initialize HTTP/3 connector without ssl config");
         }
         return common;
     }
