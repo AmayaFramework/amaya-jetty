@@ -2,6 +2,7 @@ package io.github.amayaframework.jetty;
 
 import com.github.romanqed.jfunc.Runnable1;
 import io.github.amayaframework.context.HttpContext;
+import io.github.amayaframework.http.HttpVersion;
 import io.github.amayaframework.server.HttpServer;
 import io.github.amayaframework.server.HttpServerConfig;
 import org.eclipse.jetty.server.Server;
@@ -12,10 +13,10 @@ final class JettyHttpServer implements HttpServer {
     private final Server server;
     private final AddressSet addresses;
     private final JettyHttpConfig config;
-    private final JettyHandler handler;
+    private final JettyHandlerImpl handler;
     private Runnable1<HttpContext> runnable;
 
-    JettyHttpServer(Server server, AddressSet addresses, JettyHttpConfig config, JettyHandler handler) {
+    JettyHttpServer(Server server, AddressSet addresses, JettyHttpConfig config, JettyHandlerImpl handler) {
         this.server = server;
         this.addresses = addresses;
         this.config = config;
@@ -33,6 +34,19 @@ final class JettyHttpServer implements HttpServer {
             throw new IllegalArgumentException("Illegal port: " + port);
         }
         addresses.add(new InetSocketAddress(port));
+    }
+
+    @Override
+    public void bind(InetSocketAddress address, HttpVersion version) {
+        addresses.add(address, version);
+    }
+
+    @Override
+    public void bind(int port, HttpVersion version) {
+        if (port < 0 || port > 65535) {
+            throw new IllegalArgumentException("Illegal port: " + port);
+        }
+        addresses.add(new InetSocketAddress(port), version);
     }
 
     @Override
@@ -55,16 +69,17 @@ final class JettyHttpServer implements HttpServer {
         if (!server.isStopped()) {
             throw new IllegalStateException("Cannot start not stopped server");
         }
-        handler.setVersion(config.version);
-        handler.setTokenizer(config.tokenizer);
-        handler.setParser(config.parser);
-        handler.setFormatter(config.formatter);
-        handler.setHandler(runnable);
+        handler.version = config.version;
+        handler.tokenizer = config.tokenizer;
+        handler.parser = config.parser;
+        handler.formatter = config.formatter;
+        handler.handler = runnable;
         server.start();
     }
 
     @Override
     public void stop() throws Throwable {
         server.stop();
+        server.join();
     }
 }
