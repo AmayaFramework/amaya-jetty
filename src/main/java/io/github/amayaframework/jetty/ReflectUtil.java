@@ -4,13 +4,7 @@ final class ReflectUtil {
     private ReflectUtil() {
     }
 
-    // Jetty servlet
-    private static final String SERVLET_MODULE = "org.eclipse.jetty.servlet";
-    private static final String SERVLET_HANDLER = "org.eclipse.jetty.servlet.ServletContextHandler";
-
     // Http/2.0
-    private static final String ALPN_MODULE = "org.eclipse.jetty.alpn.server";
-    private static final String ALPN_IMPL_MODULE = "org.eclipse.jetty.alpn.java.server";
     private static final String HTTP2_MODULE = "org.eclipse.jetty.http2.server";
     private static final String HTTP2_FACTORY = "org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory";
 
@@ -35,5 +29,13 @@ final class ReflectUtil {
 
     static boolean isLibraryLoaded(String module, String type) {
         return isModuleLoaded(module) || isClassExists(type);
+    }
+
+    static boolean isHttp2Loaded() {
+        return isLibraryLoaded(HTTP2_MODULE, HTTP2_FACTORY);
+    }
+
+    static boolean isHttp3Loaded() {
+        return isLibraryLoaded(HTTP3_MODULE, HTTP3_FACTORY);
     }
 }

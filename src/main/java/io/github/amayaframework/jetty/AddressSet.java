@@ -12,8 +12,6 @@ import java.util.*;
 final class AddressSet implements Set<InetSocketAddress> {
     // Jetty server instance
     private final Server server;
-    // Map of jetty connector factories
-    private final Map<HttpVersion, ConnectorFactory> factories;
     // Provided env root
     private final Path root;
     // Provided option set
@@ -26,9 +24,8 @@ final class AddressSet implements Set<InetSocketAddress> {
     // Current http version
     HttpVersion version;
 
-    AddressSet(Server server, Map<HttpVersion, ConnectorFactory> factories, Path root, OptionSet options) {
+    AddressSet(Server server, Path root, OptionSet options) {
         this.server = server;
-        this.factories = factories;
         this.root = root;
         this.options = options;
         this.connectors = new HashMap<>();
@@ -38,7 +35,7 @@ final class AddressSet implements Set<InetSocketAddress> {
 
     private Connector of(InetSocketAddress address, HttpVersion version) {
         try {
-            var factory = factories.get(version);
+            var factory = JettyProtocols.getConnectorFactory(version);
             return factory.create(server, address, root, options);
         } catch (Error | RuntimeException e) {
             throw e;

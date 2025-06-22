@@ -56,7 +56,11 @@ final class Http2ConnectorFactory implements ConnectorFactory {
             factories = createH2C(config, options);
         } else {
             Util.addSecure(config, address.getPort(), options);
-            factories = createH2(root, config, sslConfig, options);
+            try {
+                factories = createH2(root, config, sslConfig, options);
+            } catch (NoClassDefFoundError e) {
+                throw new IllegalStateException("ALPN module not loaded", e);
+            }
         }
         return Util.createConnector(server, address, factories, options);
     }
