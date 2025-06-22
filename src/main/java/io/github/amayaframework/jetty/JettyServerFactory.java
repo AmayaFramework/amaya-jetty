@@ -1,7 +1,9 @@
 package io.github.amayaframework.jetty;
 
-import io.github.amayaframework.http.HttpVersion;
+import io.github.amayaframework.environment.Environment;
+import io.github.amayaframework.http.HttpCode;
 import io.github.amayaframework.options.OptionSet;
+import io.github.amayaframework.options.Options;
 import io.github.amayaframework.server.HttpServer;
 import io.github.amayaframework.server.HttpServerFactory;
 import org.eclipse.jetty.server.Handler;
@@ -10,51 +12,201 @@ import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.util.thread.ThreadPool;
 
 import java.net.InetSocketAddress;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
 /**
- * A class that implements {@link HttpServerFactory}. Creates an implementations of {@link HttpServer}
- * based on jetty {@link Server}.
+ * A class that implements {@link HttpServerFactory}.
+ * Creates an implementations of {@link HttpServer} based on jetty {@link Server}.
  */
-public final class JettyServerFactory implements HttpServerFactory {
+public class JettyServerFactory implements HttpServerFactory {
     private final JettyFactory factory;
-    private final Supplier<ThreadPool> supplier;
+    private final JettyHandlerConfigurer configurer;
+    private final Path root;
 
     /**
-     * Constructs a {@link JettyServerFactory} instance with the given {@link JettyFactory}.
      *
-     * @param factory the specified factory that will be used to create the {@link Server} instance
+     * @param factory
+     * @param configurer
+     * @param root
+     */
+    public JettyServerFactory(JettyFactory factory, JettyHandlerConfigurer configurer, Path root) {
+        this.factory = factory;
+        this.configurer = configurer;
+        if (root != null) {
+            this.root = root.toAbsolutePath().normalize();
+        } else {
+            this.root = null;
+        }
+    }
+
+    /**
+     *
+     * @param factory
+     * @param configurer
+     */
+    public JettyServerFactory(JettyFactory factory, JettyHandlerConfigurer configurer) {
+        this(factory, configurer, null);
+    }
+
+    /**
+     *
+     * @param factory
+     * @param root
+     */
+    public JettyServerFactory(JettyFactory factory, Path root) {
+        this(factory, null, root);
+    }
+
+    /**
+     *
+     * @param configurer
+     * @param root
+     */
+    public JettyServerFactory(JettyHandlerConfigurer configurer, Path root) {
+        this.factory = null;
+        this.configurer = configurer;
+        if (root != null) {
+            this.root = root.toAbsolutePath().normalize();
+        } else {
+            this.root = null;
+        }
+    }
+
+    /**
+     *
+     * @param factory
      */
     public JettyServerFactory(JettyFactory factory) {
-        this.factory = factory;
-        this.supplier = null;
+        this(factory, null, null);
     }
 
     /**
-     * Constructs a {@link JettyServerFactory} instance with the given supplier of {@link ThreadPool}.
      *
-     * @param supplier the specified supplier provides {@link ThreadPool} instance
+     * @param configurer
+     */
+    public JettyServerFactory(JettyHandlerConfigurer configurer) {
+        this.factory = null;
+        this.configurer = configurer;
+        this.root = null;
+    }
+
+    /**
+     *
+     * @param root
+     */
+    public JettyServerFactory(Path root) {
+        this.factory = null;
+        this.configurer = null;
+        if (root != null) {
+            this.root = root.toAbsolutePath().normalize();
+        } else {
+            this.root = null;
+        }
+    }
+
+    /**
+     *
+     * @param supplier
+     * @param configurer
+     * @param root
+     */
+    public JettyServerFactory(Supplier<ThreadPool> supplier, JettyHandlerConfigurer configurer, Path root) {
+        Objects.requireNonNull(supplier);
+        this.factory = () -> new Server(supplier.get());
+        this.configurer = configurer;
+        if (root != null) {
+            this.root = root.toAbsolutePath().normalize();
+        } else {
+            this.root = null;
+        }
+    }
+
+    /**
+     *
+     * @param supplier
+     * @param configurer
+     */
+    public JettyServerFactory(Supplier<ThreadPool> supplier, JettyHandlerConfigurer configurer) {
+        this(supplier, configurer, null);
+    }
+
+    /**
+     *
+     * @param supplier
+     * @param root
+     */
+    public JettyServerFactory(Supplier<ThreadPool> supplier, Path root) {
+        this(supplier, null, root);
+    }
+
+    /**
+     *
+     * @param supplier
      */
     public JettyServerFactory(Supplier<ThreadPool> supplier) {
-        this.factory = null;
-        this.supplier = supplier;
+        this(supplier, null, null);
     }
 
     /**
-     * Constructs a {@link JettyServerFactory} instance which will use the default settings
-     * ({@link org.eclipse.jetty.util.thread.QueuedThreadPool} and {@link Server} with sessions support).
+     *
      */
     public JettyServerFactory() {
         this.factory = null;
-        this.supplier = null;
+        this.configurer = null;
+        this.root = null;
     }
 
-    private static void processBindOptions(OptionSet options, Set<InetSocketAddress> set) {
+    private Server createJettyServer(OptionSet options) {
+        if (factory == null) {
+            return new Server();
+        }
+        if (options == null) {
+            return factory.create();
+        }
+        return factory.create(options);
+    }
+
+    private static void addHandler(Server server, Handler handler, OptionSet options) {
+        if (options == null) {
+            server.setHandler(handler);
+            return;
+        }
+        if (options.asKey(JettyOptions.ENABLE_SESSIONS)) {
+            var sessionHandler = new SessionHandler();
+            sessionHandler.setHandler(handler);
+            server.setHandler(sessionHandler);
+        } else {
+            server.setHandler(handler);
+        }
+    }
+
+    private void addHandler(Server server, JettyHandler handler, OptionSet options) {
+        if (configurer == null) {
+            var wrap = new JettyWrapHandler(handler);
+            addHandler(server, wrap, options);
+            return;
+        }
+        if (options == null) {
+            configurer.configure(server, handler);
+        } else {
+            configurer.configure(server, handler, options);
+        }
+    }
+
+    private Path getRoot() {
+        if (root == null) {
+            return Path.of(".").toAbsolutePath().normalize();
+        }
+        return root;
+    }
+
+    private static void processBindOptions(Set<InetSocketAddress> set, OptionSet options) {
         // Add ports
-        var port = options.<Integer>get(JettyOptions.PORT);
-        var ports = options.<Iterable<Integer>>get(JettyOptions.PORTS);
+        var port = options.get(JettyOptions.PORT);
+        var ports = options.get(JettyOptions.PORTS);
         if (port != null) {
             set.add(new InetSocketAddress(port));
         }
@@ -62,8 +214,8 @@ public final class JettyServerFactory implements HttpServerFactory {
             ports.forEach(p -> set.add(new InetSocketAddress(p)));
         }
         // Add ips
-        var ip = options.<InetSocketAddress>get(JettyOptions.IP);
-        var ips = options.<Iterable<InetSocketAddress>>get(JettyOptions.IPS);
+        var ip = options.get(JettyOptions.IP);
+        var ips = options.get(JettyOptions.IPS);
         if (ip != null) {
             set.add(ip);
         }
@@ -72,74 +224,75 @@ public final class JettyServerFactory implements HttpServerFactory {
         }
     }
 
-    private static void processHttpConfigOptions(OptionSet options, JettyHttpConfig config) {
-        var version = options.<HttpVersion>get(JettyOptions.HTTP_VERSION);
+    private static void processHttpConfigOptions(JettyHttpConfig config, OptionSet options) {
+        var version = options.get(JettyOptions.HTTP_VERSION);
         if (version == null) {
             return;
         }
-        if (version.after(HttpVersion.HTTP_1_1)) {
-            throw new IllegalArgumentException(version + "is not supported");
-        }
-        config.version = version;
+        config.setHttpVersion(version);
     }
 
-    private Server createServer() {
-        if (supplier == null) {
-            return new Server();
+    private static HttpCodeBuffer getCodeBuffer(OptionSet options) {
+        if (options == null) {
+            return HttpCode::of;
         }
-        return new Server(supplier.get());
+        var buffer = options.get(JettyOptions.HTTP_CODE_BUFFER);
+        if (buffer == null) {
+            return HttpCode::of;
+        }
+        return buffer;
     }
 
-    private Server create(Handler handler) {
-        // Use factory if it is not null
-        if (factory != null) {
-            return Objects.requireNonNull(factory.create(handler));
+    private HttpServer createHttpServer(OptionSet set, Path root) {
+        // Create jetty server
+        var server = createJettyServer(set);
+        // Prepare bind addresses and http config
+        var addresses = new AddressSet(server, root, set == null ? Options.empty() : set);
+        var config = new JettyHttpConfig(addresses);
+        if (set != null) {
+            processHttpConfigOptions(config, set);
+            processBindOptions(addresses, set);
         }
-        // Create default server with session handler
-        var ret = createServer();
-        var sessionHandler = new SessionHandler();
-        sessionHandler.setHandler(handler);
-        ret.setHandler(sessionHandler);
-        return ret;
+        // Prepare jetty handler
+        var buffer = getCodeBuffer(set);
+        var handler = new JettyHandlerImpl(buffer);
+        addHandler(server, handler, set);
+        return new JettyHttpServer(server, addresses, config, handler);
     }
 
-    private Server create(Handler handler, OptionSet options) {
-        // Use factory if it is not null
-        if (factory != null) {
-            return Objects.requireNonNull(factory.create(handler, options));
-        }
-        // Create default server with session handler
-        var ret = createServer();
-        if (options.asKey(JettyOptions.ENABLE_SESSIONS)) {
-            var sessionHandler = new SessionHandler();
-            sessionHandler.setHandler(handler);
-            ret.setHandler(sessionHandler);
-        } else {
-            ret.setHandler(handler);
-        }
-        return ret;
+    private HttpServer createHttpServer(Path root) {
+        // Create jetty server
+        var server = createJettyServer(null);
+        // Prepare bind addresses and http config
+        var addresses = new AddressSet(server, root, Options.empty());
+        var config = new JettyHttpConfig(addresses);
+        // Prepare jetty handler
+        var handler = new JettyHandlerImpl(HttpCode::of);
+        addHandler(server, handler, null);
+        return new JettyHttpServer(server, addresses, config, handler);
     }
 
     @Override
-    public HttpServer create(OptionSet options) {
-        if (options == null || options.isEmpty()) {
-            return create();
-        }
-        var handler = new JettyHandler();
-        var server = create(handler, options);
-        var addresses = new AddressSet(server);
-        processBindOptions(options, addresses);
-        var config = new JettyHttpConfig(addresses);
-        processHttpConfigOptions(options, config);
-        return new JettyHttpServer(server, addresses, config, handler);
+    public HttpServer create(OptionSet set, Environment env) {
+        var root = env == null ? getRoot() : env.getRoot();
+        return createHttpServer(set, root);
+    }
+
+    @Override
+    public HttpServer create(OptionSet set) {
+        var root = getRoot();
+        return createHttpServer(set, root);
+    }
+
+    @Override
+    public HttpServer create(Environment env) {
+        var root = env == null ? getRoot() : env.getRoot();
+        return createHttpServer(root);
     }
 
     @Override
     public HttpServer create() {
-        var handler = new JettyHandler();
-        var server = create(handler);
-        var addresses = new AddressSet(server);
-        var config = new JettyHttpConfig(addresses);
-        return new JettyHttpServer(server, addresses, config, handler);
+        var root = getRoot();
+        return createHttpServer(root);
     }
 }

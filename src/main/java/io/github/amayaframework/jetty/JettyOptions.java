@@ -25,36 +25,48 @@ public final class JettyOptions {
      * Required type: {@link Integer}.
      */
     public static final Key<Integer> PORT = Key.of("port", Integer.class);
+
     /**
      * The key for the listened ports option.
      * <br>
      * Required type: {@link Iterable} of {@link Integer}.
      */
     public static final Key<Iterable<Integer>> PORTS = Key.of("ports", new JType<>(){});
+
     /**
      * The key for the listened ip address option.
      * <br>
      * Required type: {@link java.net.InetSocketAddress}.
      */
     public static final Key<InetSocketAddress> IP = Key.of("ip", InetSocketAddress.class);
+
     /**
      * The key for the listened ip addresses option.
      * <br>
      * Required type: {@link Iterable} of {@link java.net.InetSocketAddress}.
      */
     public static final Key<Iterable<InetSocketAddress>> IPS = Key.of("ips", new JType<>(){});
+
     /**
      * The key for the http version option.
      * <br>
      * Required type: {@link io.github.amayaframework.http.HttpVersion}.
      */
     public static final Key<HttpVersion> HTTP_VERSION = Key.of("http_version", HttpVersion.class);
+
     /**
      * The key for the flag determines whether the server will support http sessions.
      * <br>
      * Required type: {@link Boolean}.
      */
     public static final String ENABLE_SESSIONS = "enable_sessions";
+
+    /**
+     * The key for the http code buffer option.
+     * <br>
+     * Required type: {@link HttpCodeBuffer}.
+     */
+    public static final Key<HttpCodeBuffer> HTTP_CODE_BUFFER = Key.of("http_code_buffer", HttpCodeBuffer.class);
 
     /**
      * The key for the common ssl config option.

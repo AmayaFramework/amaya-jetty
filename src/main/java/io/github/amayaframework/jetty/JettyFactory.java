@@ -1,7 +1,6 @@
 package io.github.amayaframework.jetty;
 
 import io.github.amayaframework.options.OptionSet;
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 
 /**
@@ -10,19 +9,19 @@ import org.eclipse.jetty.server.Server;
 public interface JettyFactory {
 
     /**
-     * Creates a {@link Server} instance with the specified {@link Handler} implementation and {@link OptionSet}.
+     * Creates a {@link Server} instance with the specified {@link OptionSet}.
      *
-     * @param handler the final handler that contains the logic for processing the http request, must be executed last
      * @param options the option set containing jetty server options
      * @return the {@link Server} instance
      */
-    Server create(Handler handler, OptionSet options);
+    default Server create(OptionSet options) {
+        return create();
+    }
 
     /**
-     * Creates a {@link Server} instance with the specified {@link Handler} implementation.
+     * Creates a {@link Server} instance.
      *
-     * @param handler the final handler that contains the logic for processing the http request, must be executed last
      * @return the {@link Server} instance
      */
-    Server create(Handler handler);
+    Server create();
 }
