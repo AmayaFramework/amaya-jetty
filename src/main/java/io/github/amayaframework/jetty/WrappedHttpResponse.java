@@ -71,6 +71,7 @@ final class WrappedHttpResponse implements HttpServletResponse {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void setStatus(int sc, String sm) {
         setStatus(sc);
     }
