@@ -1,56 +1,66 @@
 package io.github.amayaframework.jetty;
 
+import io.github.amayaframework.http.HttpVersion;
+import io.github.amayaframework.options.OptionSet;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
 
 import java.net.InetSocketAddress;
+import java.nio.file.Path;
 import java.util.*;
 
 final class AddressSet implements Set<InetSocketAddress> {
+    // Jetty server instance
     private final Server server;
+    // Map of jetty connector factories
+    private final Map<HttpVersion, ConnectorFactory> factories;
+    // Provided env root
+    private final Path root;
+    // Provided option set
+    private final OptionSet options;
+    // Content map and it sets
     private final Map<InetSocketAddress, Connector> connectors;
     private final Set<InetSocketAddress> keys;
     private final Set<Map.Entry<InetSocketAddress, Connector>> entries;
 
-    AddressSet(Server server) {
+    // Current http version
+    HttpVersion version;
+
+    AddressSet(Server server, Map<HttpVersion, ConnectorFactory> factories, Path root, OptionSet options) {
         this.server = server;
+        this.factories = factories;
+        this.root = root;
+        this.options = options;
         this.connectors = new HashMap<>();
         this.keys = connectors.keySet();
         this.entries = connectors.entrySet();
     }
 
-    private Connector of(InetSocketAddress address) {
-        var ret = new ServerConnector(server);
-        ret.setHost(address.getHostString());
-        ret.setPort(address.getPort());
-        return ret;
+    private Connector of(InetSocketAddress address, HttpVersion version) {
+        try {
+            var factory = factories.get(version);
+            return factory.create(server, address, root, options);
+        } catch (Error | RuntimeException e) {
+            throw e;
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    @Override
-    public int size() {
-        return connectors.size();
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return connectors.isEmpty();
-    }
-
-    @Override
-    @SuppressWarnings("SuspiciousMethodCalls")
-    public boolean contains(Object o) {
-        return connectors.containsKey(o);
-    }
-
-    @Override
-    public Object[] toArray() {
-        return keys.toArray();
-    }
-
-    @Override
-    public <T> T[] toArray(T[] a) {
-        return keys.toArray(a);
+    void add(InetSocketAddress address, HttpVersion version) {
+        Objects.requireNonNull(address);
+        if (version.before(HttpVersion.HTTP_1_0)) {
+            throw new IllegalArgumentException("Only versions starting with HTTP/1.0 are supported");
+        }
+        if (version.after(this.version)) {
+            throw new IllegalArgumentException("Maximum supported http version is " + this.version);
+        }
+        if (connectors.containsKey(address)) {
+            return;
+        }
+        var connector = of(address, version);
+        server.addConnector(connector);
+        connectors.put(address, connector);
     }
 
     @Override
@@ -59,7 +69,7 @@ final class AddressSet implements Set<InetSocketAddress> {
         if (connectors.containsKey(address)) {
             return false;
         }
-        var connector = of(address);
+        var connector = of(address, version);
         server.addConnector(connector);
         connectors.put(address, connector);
         return true;
@@ -127,6 +137,32 @@ final class AddressSet implements Set<InetSocketAddress> {
             server.removeConnector(connector);
         }
         connectors.clear();
+    }
+
+    @Override
+    public int size() {
+        return connectors.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return connectors.isEmpty();
+    }
+
+    @Override
+    @SuppressWarnings("SuspiciousMethodCalls")
+    public boolean contains(Object o) {
+        return connectors.containsKey(o);
+    }
+
+    @Override
+    public Object[] toArray() {
+        return keys.toArray();
+    }
+
+    @Override
+    public <T> T[] toArray(T[] a) {
+        return keys.toArray(a);
     }
 
     @Override

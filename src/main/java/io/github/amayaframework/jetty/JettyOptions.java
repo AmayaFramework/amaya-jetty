@@ -1,16 +1,23 @@
 package io.github.amayaframework.jetty;
 
+import com.github.romanqed.jetty.generator.StrictHttpConnectionFactory;
 import com.github.romanqed.jtype.JType;
 import io.github.amayaframework.http.HttpVersion;
 import io.github.amayaframework.options.Key;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
- * A class containing the keys for the server options supported by the {@code JettyServerFactory}.
+ * A class containing the keys for the common server options supported by the {@code JettyServerFactory}.
  */
 public final class JettyOptions {
+    private JettyOptions() {
+    }
 
     /**
      * The key for the listened port option.
@@ -50,19 +57,60 @@ public final class JettyOptions {
     public static final String ENABLE_SESSIONS = "enable_sessions";
 
     /**
-     * The key for the common ssl keystore option.
+     * The key for the common ssl config option.
      * <br>
-     * Required type: {@link SSLKeystore}.
+     * Required type: {@link SSLConfig}.
      */
-    public static final Key<SSLKeystore> KEYSTORE = Key.of("keystore", SSLKeystore.class);
+    public static final Key<SSLConfig> SSL_CONFIG = Key.of("ssl", SSLConfig.class);
 
     /**
-     * The key for the ssl keystore mapping option.
+     * The key for the ssl configs mapping option.
      * <br>
-     * Required type: {@link Map} of {@link InetSocketAddress} -&gt; {@link SSLKeystore}.
+     * Required type: {@link Map} of {@link InetSocketAddress} -&gt; {@link SSLConfig}.
      */
-    public static final Key<Map<InetSocketAddress, SSLKeystore>> KEYSTORES = Key.of("keystores", new JType<>(){});
+    public static final Key<Map<InetSocketAddress, SSLConfig>> SSL_CONFIGS = Key.of("ssls", new JType<>(){});
 
-    private JettyOptions() {
-    }
+    /**
+     * The key for the http configurer option.
+     * <br>
+     * Required type: {@link java.util.function.BiConsumer} of {@link org.eclipse.jetty.server.HttpConfiguration}.
+     */
+    public static final Key<BiConsumer<HttpVersion, HttpConfiguration>> HTTP_CONFIGURER = Key.of(
+            "http_configurer",
+            new JType<>(){}
+    );
+
+    /**
+     * The key for the acceptors option.
+     * <br>
+     * Required type: {@link Integer}.
+     */
+    public static final Key<Integer> ACCEPTORS = Key.of("acceptors", Integer.class);
+
+    /**
+     * The key for the selectors option.
+     * <br>
+     * Required type: {@link Integer}.
+     */
+    public static final Key<Integer> SELECTORS = Key.of("selectors", Integer.class);
+
+    /**
+     * The key for the http/1.x factory configurer.
+     * <br>
+     * Required type: {@link Consumer} of {@link StrictHttpConnectionFactory}.
+     */
+    public static final Key<Consumer<StrictHttpConnectionFactory>> HTTP1_CONFIGURER = Key.of(
+            "http1_configurer",
+            new JType<>(){}
+    );
+
+    /**
+     * The key for the secure configurer option.
+     * <br>
+     * Required type: {@link Consumer} of {@link SecureRequestCustomizer}.
+     */
+    public static final Key<Consumer<SecureRequestCustomizer>> SECURE_CONFIGURER = Key.of(
+            "secure_configurer",
+            new JType<>(){}
+    );
 }
