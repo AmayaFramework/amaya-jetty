@@ -46,8 +46,16 @@ final class JettyHandlerImpl implements JettyHandler {
             request.setHandled(true);
             return;
         }
-        // Create amaya request and response entities
+        // Create amaya request
         var amayaRequest = new JettyRequest(request, version, tokenizer, parser);
+        // Parse and check http method
+        var method = amayaRequest.getMethod();
+        if (method == null || !method.isSupported(version)) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown http method");
+            request.setHandled(true);
+            return;
+        }
+        // Create amaya response
         var protocol = jettyVersion.toString();
         var scheme = request.getScheme();
         var amayaResponse = new JettyResponse(response, protocol, scheme, version, formatter);
