@@ -26,7 +26,7 @@ final class JettyWrapHandler extends AbstractHandler {
         } catch (Error | RuntimeException | IOException | ServletException e) {
             throw e;
         } catch (Throwable e) {
-            throw new RuntimeException(e);
+            throw new ServletException("Amaya Jetty integration handler failed", e);
         }
     }
 }
