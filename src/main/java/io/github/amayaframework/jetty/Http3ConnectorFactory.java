@@ -17,9 +17,9 @@ import java.nio.file.Path;
 final class Http3ConnectorFactory implements ConnectorFactory {
 
     private static SSLConfig getSslConfig(InetSocketAddress address, OptionSet options) {
-        var map = options.get(JettyOptions.SSL_CONFIGS);
-        if (map != null) {
-            return map.get(address);
+        var found = Util.getSslConfig(address, options);
+        if (found != null) {
+            return found;
         }
         var common = options.get(JettyOptions.SSL_CONFIG);
         if (common == null) {

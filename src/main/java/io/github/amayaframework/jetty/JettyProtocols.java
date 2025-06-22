@@ -33,6 +33,19 @@ public final class JettyProtocols {
         }
     }
 
+    /**
+     * Verifies that the required dependencies are loaded for the specified version.
+     *
+     * @param version the specified http protocol version, must be non-null
+     * @return true if version supported, false otherwise
+     */
+    public static boolean isVersionSupported(HttpVersion version) {
+        if (version.before(HttpVersion.HTTP_2_0)) {
+            return true;
+        }
+        return FACTORIES.containsKey(version);
+    }
+
     static ConnectorFactory getConnectorFactory(HttpVersion version) {
         if (version.before(HttpVersion.HTTP_2_0)) {
             return HTTP1_FACTORY;

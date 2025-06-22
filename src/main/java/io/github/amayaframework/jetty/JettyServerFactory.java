@@ -22,6 +22,12 @@ import java.util.function.Supplier;
  * Creates an implementations of {@link HttpServer} based on jetty {@link Server}.
  */
 public class JettyServerFactory implements HttpServerFactory {
+
+    static {
+        // Preload available connector factories
+        JettyProtocols.load();
+    }
+
     private final JettyFactory factory;
     private final JettyHandlerConfigurer configurer;
     private final Path root;

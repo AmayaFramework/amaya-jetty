@@ -44,6 +44,9 @@ final class JettyHttpConfig implements HttpServerConfig {
         if (version.after(HttpVersion.HTTP_3_0)) {
             throw new IllegalArgumentException("Maximum supported http version is HTTP/3.0");
         }
+        if (!JettyProtocols.isVersionSupported(version)) {
+            throw new IllegalArgumentException(version + " is supported, but the required dependencies is not loaded");
+        }
         this.version = version;
         this.addresses.version = version;
     }
