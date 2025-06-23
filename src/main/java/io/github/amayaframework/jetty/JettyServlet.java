@@ -6,24 +6,37 @@ import io.github.amayaframework.http.HttpVersion;
 import io.github.amayaframework.server.MimeFormatter;
 import io.github.amayaframework.server.MimeParser;
 import io.github.amayaframework.server.PathTokenizer;
+import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 
-final class JettyHandlerImpl implements JettyHandler {
+import java.io.IOException;
+
+final class JettyServlet implements Servlet {
     private final HttpCodeBuffer buffer;
     Runnable1<HttpContext> handler;
     HttpVersion version;
     PathTokenizer tokenizer;
     MimeParser parser;
     MimeFormatter formatter;
+    private ServletConfig config;
 
-    JettyHandlerImpl(HttpCodeBuffer buffer) {
+    JettyServlet(HttpCodeBuffer buffer) {
         this.buffer = buffer;
     }
 
     @Override
-    public void handle(Request request, Response response) throws Throwable {
+    public void init(ServletConfig config) {
+        this.config = config;
+    }
+
+    @Override
+    public ServletConfig getServletConfig() {
+        return config;
+    }
+
+    private void handle(Request request, Response response) throws Throwable {
         // Because there are no request handling, we must set baseRequest.setHandled(false)
         if (handler == null) {
             request.setHandled(false);
@@ -68,5 +81,25 @@ final class JettyHandlerImpl implements JettyHandler {
         handler.run(context);
         // Mark request as handled
         request.setHandled(true);
+    }
+
+    @Override
+    public void service(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+        try {
+            handle((Request) request, (Response) response);
+        } catch (Error | RuntimeException | IOException | ServletException e) {
+            throw e;
+        } catch (Throwable e) {
+            throw new ServletException("Amaya Jetty integration servlet failed", e);
+        }
+    }
+
+    @Override
+    public String getServletInfo() {
+        return "Amaya Jetty integration for Jetty 11 (module: amaya-jetty)";
+    }
+
+    @Override
+    public void destroy() {
     }
 }

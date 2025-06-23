@@ -17,13 +17,15 @@ final class JettyHttpConfig implements HttpServerConfig {
     private static final PathTokenizer DEFAULT_TOKENIZER = new JettyPathTokenizer();
 
     final AddressSet addresses;
+    final ServletContext context;
     HttpVersion version;
     PathTokenizer tokenizer;
     MimeParser parser;
     MimeFormatter formatter;
 
-    JettyHttpConfig(AddressSet addresses) {
+    JettyHttpConfig(AddressSet addresses, ServletContext context) {
         this.addresses = addresses;
+        this.context = context;
         this.version = HttpVersion.HTTP_1_1;
         this.addresses.version = HttpVersion.HTTP_1_1;
         this.tokenizer = DEFAULT_TOKENIZER;
@@ -33,8 +35,7 @@ final class JettyHttpConfig implements HttpServerConfig {
 
     @Override
     public ServletContext getServletContext() {
-        // servlet context not implemented in this build
-        return null;
+        return context;
     }
 
     @Override

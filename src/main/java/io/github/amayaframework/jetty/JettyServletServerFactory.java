@@ -6,9 +6,10 @@ import io.github.amayaframework.options.OptionSet;
 import io.github.amayaframework.options.Options;
 import io.github.amayaframework.server.HttpServer;
 import io.github.amayaframework.server.HttpServerFactory;
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.session.SessionHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.thread.ThreadPool;
 
 import java.net.InetSocketAddress;
@@ -21,7 +22,7 @@ import java.util.function.Supplier;
  * A class that implements {@link HttpServerFactory}.
  * Creates an implementations of {@link HttpServer} based on jetty {@link Server}.
  */
-public class JettyServerFactory implements HttpServerFactory {
+public class JettyServletServerFactory implements HttpServerFactory {
 
     static {
         // Preload available connector factories
@@ -29,7 +30,7 @@ public class JettyServerFactory implements HttpServerFactory {
     }
 
     private final JettyFactory factory;
-    private final JettyHandlerConfigurer configurer;
+    private final JettyContextHandlerConfigurer configurer;
     private final Path root;
 
     /**
@@ -39,7 +40,7 @@ public class JettyServerFactory implements HttpServerFactory {
      * @param configurer the specified handler configurer
      * @param root       the specified root path for the server
      */
-    public JettyServerFactory(JettyFactory factory, JettyHandlerConfigurer configurer, Path root) {
+    public JettyServletServerFactory(JettyFactory factory, JettyContextHandlerConfigurer configurer, Path root) {
         this.factory = factory;
         this.configurer = configurer;
         if (root != null) {
@@ -55,7 +56,7 @@ public class JettyServerFactory implements HttpServerFactory {
      * @param factory    the specified jetty server factory
      * @param configurer the specified handler configurer
      */
-    public JettyServerFactory(JettyFactory factory, JettyHandlerConfigurer configurer) {
+    public JettyServletServerFactory(JettyFactory factory, JettyContextHandlerConfigurer configurer) {
         this(factory, configurer, null);
     }
 
@@ -65,7 +66,7 @@ public class JettyServerFactory implements HttpServerFactory {
      * @param factory the specified jetty server factory
      * @param root    the specified root path for the server
      */
-    public JettyServerFactory(JettyFactory factory, Path root) {
+    public JettyServletServerFactory(JettyFactory factory, Path root) {
         this(factory, null, root);
     }
 
@@ -75,7 +76,7 @@ public class JettyServerFactory implements HttpServerFactory {
      * @param configurer the specified handler configurer
      * @param root       the specified root path for the server
      */
-    public JettyServerFactory(JettyHandlerConfigurer configurer, Path root) {
+    public JettyServletServerFactory(JettyContextHandlerConfigurer configurer, Path root) {
         this.factory = null;
         this.configurer = configurer;
         if (root != null) {
@@ -90,7 +91,7 @@ public class JettyServerFactory implements HttpServerFactory {
      *
      * @param factory the specified jetty server factory
      */
-    public JettyServerFactory(JettyFactory factory) {
+    public JettyServletServerFactory(JettyFactory factory) {
         this(factory, null, null);
     }
 
@@ -99,7 +100,7 @@ public class JettyServerFactory implements HttpServerFactory {
      *
      * @param configurer the specified handler configurer
      */
-    public JettyServerFactory(JettyHandlerConfigurer configurer) {
+    public JettyServletServerFactory(JettyContextHandlerConfigurer configurer) {
         this.factory = null;
         this.configurer = configurer;
         this.root = null;
@@ -110,7 +111,7 @@ public class JettyServerFactory implements HttpServerFactory {
      *
      * @param root the specified root path for the server
      */
-    public JettyServerFactory(Path root) {
+    public JettyServletServerFactory(Path root) {
         this.factory = null;
         this.configurer = null;
         if (root != null) {
@@ -127,7 +128,9 @@ public class JettyServerFactory implements HttpServerFactory {
      * @param configurer the specified handler configurer
      * @param root       the specified root path for the server
      */
-    public JettyServerFactory(Supplier<ThreadPool> supplier, JettyHandlerConfigurer configurer, Path root) {
+    public JettyServletServerFactory(Supplier<ThreadPool> supplier,
+                                     JettyContextHandlerConfigurer configurer,
+                                     Path root) {
         Objects.requireNonNull(supplier);
         this.factory = () -> new Server(supplier.get());
         this.configurer = configurer;
@@ -144,7 +147,7 @@ public class JettyServerFactory implements HttpServerFactory {
      * @param supplier   the specified thread pool supplier
      * @param configurer the specified handler configurer
      */
-    public JettyServerFactory(Supplier<ThreadPool> supplier, JettyHandlerConfigurer configurer) {
+    public JettyServletServerFactory(Supplier<ThreadPool> supplier, JettyContextHandlerConfigurer configurer) {
         this(supplier, configurer, null);
     }
 
@@ -154,7 +157,7 @@ public class JettyServerFactory implements HttpServerFactory {
      * @param supplier the specified thread pool supplier
      * @param root     the specified root path for the server
      */
-    public JettyServerFactory(Supplier<ThreadPool> supplier, Path root) {
+    public JettyServletServerFactory(Supplier<ThreadPool> supplier, Path root) {
         this(supplier, null, root);
     }
 
@@ -163,14 +166,14 @@ public class JettyServerFactory implements HttpServerFactory {
      *
      * @param supplier the specified thread pool supplier
      */
-    public JettyServerFactory(Supplier<ThreadPool> supplier) {
+    public JettyServletServerFactory(Supplier<ThreadPool> supplier) {
         this(supplier, null, null);
     }
 
     /**
      * Constructs a factory with default settings and no customization.
      */
-    public JettyServerFactory() {
+    public JettyServletServerFactory() {
         this.factory = null;
         this.configurer = null;
         this.root = null;
@@ -184,33 +187,6 @@ public class JettyServerFactory implements HttpServerFactory {
             return factory.create();
         }
         return factory.create(options);
-    }
-
-    private static void addHandler(Server server, Handler handler, OptionSet options) {
-        if (options == null) {
-            server.setHandler(handler);
-            return;
-        }
-        if (options.asKey(JettyOptions.ENABLE_SESSIONS)) {
-            var sessionHandler = new SessionHandler();
-            sessionHandler.setHandler(handler);
-            server.setHandler(sessionHandler);
-        } else {
-            server.setHandler(handler);
-        }
-    }
-
-    private void addHandler(Server server, JettyHandler handler, OptionSet options) {
-        if (configurer == null) {
-            var wrap = new JettyWrapHandler(handler);
-            addHandler(server, wrap, options);
-            return;
-        }
-        if (options == null) {
-            configurer.configure(server, handler);
-        } else {
-            configurer.configure(server, handler, options);
-        }
     }
 
     private Path getRoot() {
@@ -260,33 +236,71 @@ public class JettyServerFactory implements HttpServerFactory {
         return buffer;
     }
 
+    private void processSessionsOption(ServletContextHandler handler, OptionSet options) {
+        if (options == null) {
+            return;
+        }
+        if (options.asKey(JettyOptions.ENABLE_SESSIONS)) {
+            handler.setSessionHandler(new SessionHandler());
+        }
+    }
+
+    private ServletContextHandler createHandler(Server server, OptionSet options) {
+        var ret = new ServletContextHandler();
+        processSessionsOption(ret, options);
+        server.setHandler(ret);
+        if (configurer == null) {
+            return ret;
+        }
+        if (options == null) {
+            configurer.configure(ret);
+        } else {
+            configurer.configure(ret, options);
+        }
+        return ret;
+    }
+
     private HttpServer createHttpServer(OptionSet set, Path root) {
         // Create jetty server
         var server = createJettyServer(set);
+        // Create and init servlet handler
+        var handler = createHandler(server, set);
+        // Get servlet context
+        var context = handler.getServletContext();
         // Prepare bind addresses and http config
         var addresses = new AddressSet(server, root, set == null ? Options.empty() : set);
-        var config = new JettyHttpConfig(addresses);
+        var config = new JettyHttpConfig(addresses, context);
         if (set != null) {
             processHttpConfigOptions(config, set);
             processBindOptions(addresses, set);
         }
-        // Prepare jetty handler
+        // Prepare jetty servlet
         var buffer = getCodeBuffer(set);
-        var handler = new JettyHandlerImpl(buffer);
-        addHandler(server, handler, set);
-        return new JettyHttpServer(server, addresses, config, handler);
+        var servlet = new JettyServlet(buffer);
+        // Add jetty servlet to / path for generic path catch
+        handler.addServlet(new ServletHolder(servlet), "/");
+        return new JettyHttpServer(server, addresses, config, servlet, context);
     }
 
     private HttpServer createHttpServer(Path root) {
         // Create jetty server
         var server = createJettyServer(null);
+        // Create and init servlet handler
+        var handler = new ServletContextHandler();
+        server.setHandler(handler);
+        if (configurer != null) {
+            configurer.configure(handler);
+        }
+        // Get servlet context
+        var context = handler.getServletContext();
         // Prepare bind addresses and http config
         var addresses = new AddressSet(server, root, Options.empty());
-        var config = new JettyHttpConfig(addresses);
-        // Prepare jetty handler
-        var handler = new JettyHandlerImpl(HttpCode::of);
-        addHandler(server, handler, null);
-        return new JettyHttpServer(server, addresses, config, handler);
+        var config = new JettyHttpConfig(addresses, context);
+        // Prepare jetty servlet
+        var servlet = new JettyServlet(HttpCode::of);
+        // Add jetty servlet to / path for generic path catch
+        handler.addServlet(new ServletHolder(servlet), "/");
+        return new JettyHttpServer(server, addresses, config, servlet, context);
     }
 
     @Override

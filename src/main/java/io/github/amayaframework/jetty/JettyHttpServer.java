@@ -14,14 +14,20 @@ final class JettyHttpServer implements HttpServer {
     private final Server server;
     private final AddressSet addresses;
     private final JettyHttpConfig config;
-    private final JettyHandlerImpl handler;
+    private final JettyServlet servlet;
+    private final ServletContext context;
     private Runnable1<HttpContext> runnable;
 
-    JettyHttpServer(Server server, AddressSet addresses, JettyHttpConfig config, JettyHandlerImpl handler) {
+    JettyHttpServer(Server server,
+                    AddressSet addresses,
+                    JettyHttpConfig config,
+                    JettyServlet servlet,
+                    ServletContext context) {
         this.server = server;
         this.addresses = addresses;
         this.config = config;
-        this.handler = handler;
+        this.servlet = servlet;
+        this.context = context;
     }
 
     @Override
@@ -39,8 +45,7 @@ final class JettyHttpServer implements HttpServer {
 
     @Override
     public ServletContext getServletContext() {
-        // servlet context not implemented in this build
-        return null;
+        return context;
     }
 
     @Override
@@ -76,11 +81,11 @@ final class JettyHttpServer implements HttpServer {
         if (!server.isStopped()) {
             throw new IllegalStateException("Cannot start not stopped server");
         }
-        handler.version = config.version;
-        handler.tokenizer = config.tokenizer;
-        handler.parser = config.parser;
-        handler.formatter = config.formatter;
-        handler.handler = runnable;
+        servlet.version = config.version;
+        servlet.tokenizer = config.tokenizer;
+        servlet.parser = config.parser;
+        servlet.formatter = config.formatter;
+        servlet.handler = runnable;
         server.start();
     }
 
