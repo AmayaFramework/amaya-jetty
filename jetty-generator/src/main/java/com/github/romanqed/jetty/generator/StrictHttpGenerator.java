@@ -62,14 +62,31 @@ public final class StrictHttpGenerator {
     private static final byte[] HTTP_1_1_SPACE = StringUtil.getBytes(HttpVersion.HTTP_1_1 + " ");
     private static final byte[] TRANSFER_ENCODING_CHUNKED = StringUtil.getBytes("Transfer-Encoding: chunked\r\n");
 
-    private State state = State.START;
-    private HttpTokens.EndOfContent endOfContent = HttpTokens.EndOfContent.UNKNOWN_CONTENT;
+    private final HttpMessageBuffer buffer;
+    private State state;
+    private HttpTokens.EndOfContent endOfContent;
     private MetaData info;
-    private long contentPrepared = 0;
-    private boolean noContentResponse = false;
-    private Boolean persistent = null;
-    private boolean needCRLF = false;
+    private long contentPrepared;
+    private boolean noContentResponse;
+    private Boolean persistent;
+    private boolean needCRLF;
     private int maxHeaderBytes;
+
+    public StrictHttpGenerator(HttpMessageBuffer buffer) {
+        this.buffer = buffer;
+        this.state = State.START;
+        this.endOfContent = HttpTokens.EndOfContent.UNKNOWN_CONTENT;
+        this.info = null;
+        this.contentPrepared = 0;
+        this.noContentResponse = false;
+        this.persistent = null;
+        this.needCRLF = false;
+        this.maxHeaderBytes = 0;
+    }
+
+    public StrictHttpGenerator() {
+        this(null);
+    }
 
     private static void generateRequestLine(MetaData.Request request, ByteBuffer header) {
         header.put(StringUtil.getBytes(request.getMethod()));
@@ -94,13 +111,23 @@ public final class StrictHttpGenerator {
         return bytes;
     }
 
-    private static void generateResponseLine(MetaData.Response response, ByteBuffer header) {
+    private String lookupMessage(int code) {
+        if (buffer == null) {
+            return null;
+        }
+        return buffer.get(code);
+    }
+
+    private void generateResponseLine(MetaData.Response response, ByteBuffer header) {
         // Look for prepared response line
         var version = response.getHttpVersion();
         var status = response.getStatus();
         var offset = status - 100;
         var prepared = offset < PREPARED.length ? PREPARED[offset] : null;
         var reason = response.getReason();
+        if (reason == null) {
+            reason = lookupMessage(status);
+        }
         if (prepared != null) {
             if (reason == null || prepared.reason.equals(reason)) {
                 header.put(prepared.line);
