@@ -128,7 +128,7 @@ import org.eclipse.jetty.server.Server;
 
 public class Main {
     public static void main(String[] args) throws Throwable {
-        var factory = new JettyServerFactory(() -> new Server());
+        var factory = new JettyServerFactory(v -> new Server());
         var server = factory.create();
         server.setHandler(ctx -> {
             var req = ctx.getRequest();

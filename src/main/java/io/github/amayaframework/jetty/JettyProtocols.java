@@ -2,6 +2,8 @@ package io.github.amayaframework.jetty;
 
 import io.github.amayaframework.http.HttpVersion;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -44,6 +46,19 @@ public final class JettyProtocols {
             return true;
         }
         return FACTORIES.containsKey(version);
+    }
+
+    /**
+     * Gets the list of supported protocols for which the necessary dependencies have been found.
+     *
+     * @return the list of supported protocols
+     */
+    public static List<HttpVersion> getLoadedProtocols() {
+        var ret = new LinkedList<HttpVersion>();
+        ret.add(HttpVersion.HTTP_1_0);
+        ret.add(HttpVersion.HTTP_1_1);
+        ret.addAll(FACTORIES.keySet());
+        return ret;
     }
 
     static ConnectorFactory getConnectorFactory(HttpVersion version) {
