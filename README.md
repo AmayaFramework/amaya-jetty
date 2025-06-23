@@ -27,11 +27,13 @@ dependencies {
 ### Maven dependency
 
 ```
-<dependency>
-    <groupId>io.github.amayaframework</groupId>
-    <artifactId>amaya-jetty</artifactId>
-    <version>1.0.1</version>
-</dependency>
+<dependencies>
+    <dependency>
+        <groupId>io.github.amayaframework</groupId>
+        <artifactId>amaya-jetty-servlet</artifactId>
+        <version>1.1.0-11</version>
+    </dependency>
+</dependencies>
 ```
 
 ## Examples
