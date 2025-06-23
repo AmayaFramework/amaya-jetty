@@ -20,7 +20,7 @@ To install it, you will need:
 
 ```Groovy
 dependencies {
-    implementation group: 'com.github.romanqed', name: 'amaya-jetty', version: '1.0.1'
+    implementation group: 'com.github.romanqed', name: 'amaya-jetty', version: '1.2.0-11'
 }
 ```
 
@@ -30,7 +30,7 @@ dependencies {
 <dependency>
     <groupId>io.github.amayaframework</groupId>
     <artifactId>amaya-jetty</artifactId>
-    <version>1.0.1</version>
+    <version>1.2.0-11</version>
 </dependency>
 ```
 
@@ -89,13 +89,11 @@ public class Main {
 import io.github.amayaframework.jetty.JettyFactory;
 import io.github.amayaframework.jetty.JettyServerFactory;
 import io.github.amayaframework.options.OptionSet;
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.session.SessionHandler;
 
 public class Main {
     public static void main(String[] args) throws Throwable {
-        var factory = new JettyServerFactory(new MyServerFactory());
+        var factory = new JettyServerFactory(v -> new Server());
         var server = factory.create();
         server.setHandler(ctx -> {
             var req = ctx.getRequest();
@@ -104,24 +102,6 @@ public class Main {
         });
         server.bind(8080);
         server.start();
-    }
-}
-
-final class MyServerFactory implements JettyFactory {
-
-    @Override
-    public Server create(Handler handler, OptionSet options) {
-        // Just ignore options for example
-        return create(handler);
-    }
-
-    @Override
-    public Server create(Handler handler) {
-        var ret = new Server();
-        var sessionHandler = new SessionHandler();
-        sessionHandler.setHandler(handler);
-        ret.setHandler(sessionHandler);
-        return ret;
     }
 }
 ```
