@@ -5,6 +5,7 @@ import io.github.amayaframework.context.HttpContext;
 import io.github.amayaframework.http.HttpVersion;
 import io.github.amayaframework.server.HttpServer;
 import io.github.amayaframework.server.HttpServerConfig;
+import jakarta.servlet.ServletContext;
 import org.eclipse.jetty.server.Server;
 
 import java.net.InetSocketAddress;
@@ -34,6 +35,12 @@ final class JettyHttpServer implements HttpServer {
             throw new IllegalArgumentException("Illegal port: " + port);
         }
         addresses.add(new InetSocketAddress(port));
+    }
+
+    @Override
+    public ServletContext getServletContext() {
+        // servlet context not implemented in this build
+        return null;
     }
 
     @Override

@@ -5,6 +5,7 @@ import io.github.amayaframework.server.HttpServerConfig;
 import io.github.amayaframework.server.MimeFormatter;
 import io.github.amayaframework.server.MimeParser;
 import io.github.amayaframework.server.PathTokenizer;
+import jakarta.servlet.ServletContext;
 
 import java.net.InetSocketAddress;
 import java.util.Objects;
@@ -28,6 +29,12 @@ final class JettyHttpConfig implements HttpServerConfig {
         this.tokenizer = DEFAULT_TOKENIZER;
         this.parser = DEFAULT_PARSER;
         this.formatter = DEFAULT_FORMATTER;
+    }
+
+    @Override
+    public ServletContext getServletContext() {
+        // servlet context not implemented in this build
+        return null;
     }
 
     @Override
