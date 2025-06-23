@@ -132,7 +132,7 @@ public class JettyServletServerFactory implements HttpServerFactory {
                                      JettyContextHandlerConfigurer configurer,
                                      Path root) {
         Objects.requireNonNull(supplier);
-        this.factory = () -> new Server(supplier.get());
+        this.factory = v -> new Server(supplier.get());
         this.configurer = configurer;
         if (root != null) {
             this.root = root.toAbsolutePath().normalize();
@@ -179,14 +179,14 @@ public class JettyServletServerFactory implements HttpServerFactory {
         this.root = null;
     }
 
-    private Server createJettyServer(OptionSet options) {
+    private Server createJettyServer(OptionSet options, Environment env) {
         if (factory == null) {
             return new Server();
         }
-        if (options == null) {
-            return factory.create();
+        if (env == null) {
+            return factory.create(options);
         }
-        return factory.create(options);
+        return factory.create(options, env);
     }
 
     private Path getRoot() {
@@ -245,26 +245,26 @@ public class JettyServletServerFactory implements HttpServerFactory {
         }
     }
 
-    private ServletContextHandler createHandler(Server server, OptionSet options) {
+    private ServletContextHandler createHandler(Server server, OptionSet options, Environment env) {
         var ret = new ServletContextHandler();
         processSessionsOption(ret, options);
         server.setHandler(ret);
         if (configurer == null) {
             return ret;
         }
-        if (options == null) {
-            configurer.configure(ret);
-        } else {
+        if (env == null) {
             configurer.configure(ret, options);
+        } else {
+            configurer.configure(ret, options, env);
         }
         return ret;
     }
 
-    private HttpServer createHttpServer(OptionSet set, Path root) {
+    private HttpServer createHttpServer(OptionSet set, Path root, Environment env) {
         // Create jetty server
-        var server = createJettyServer(set);
+        var server = createJettyServer(set, env);
         // Create and init servlet handler
-        var handler = createHandler(server, set);
+        var handler = createHandler(server, set, env);
         // Get servlet context
         var context = handler.getServletContext();
         // Prepare bind addresses and http config
@@ -282,14 +282,18 @@ public class JettyServletServerFactory implements HttpServerFactory {
         return new JettyHttpServer(server, addresses, config, servlet, context);
     }
 
-    private HttpServer createHttpServer(Path root) {
+    private HttpServer createHttpServer(Path root, Environment env) {
         // Create jetty server
-        var server = createJettyServer(null);
+        var server = createJettyServer(null, env);
         // Create and init servlet handler
         var handler = new ServletContextHandler();
         server.setHandler(handler);
         if (configurer != null) {
-            configurer.configure(handler);
+            if (env == null) {
+                configurer.configure(handler, null);
+            } else {
+                configurer.configure(handler, null, env);
+            }
         }
         // Get servlet context
         var context = handler.getServletContext();
@@ -306,24 +310,24 @@ public class JettyServletServerFactory implements HttpServerFactory {
     @Override
     public HttpServer create(OptionSet set, Environment env) {
         var root = env == null ? getRoot() : env.getRoot();
-        return createHttpServer(set, root);
+        return createHttpServer(set, root, env);
     }
 
     @Override
     public HttpServer create(OptionSet set) {
         var root = getRoot();
-        return createHttpServer(set, root);
+        return createHttpServer(set, root, null);
     }
 
     @Override
     public HttpServer create(Environment env) {
         var root = env == null ? getRoot() : env.getRoot();
-        return createHttpServer(root);
+        return createHttpServer(root, env);
     }
 
     @Override
     public HttpServer create() {
         var root = getRoot();
-        return createHttpServer(root);
+        return createHttpServer(root, null);
     }
 }
