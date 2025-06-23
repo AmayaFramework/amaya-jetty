@@ -1,5 +1,5 @@
 # amaya-jetty [![amaya-jetty](https://img.shields.io/maven-central/v/io.github.amayaframework/amaya-jetty?color=blue)](https://repo1.maven.org/maven2/io/github/amayaframework/amaya-jetty)
-The amaya-server implementation is based on jetty-server.
+The amaya-server implementation is based on jetty-server with full servlet support.
 
 ## Getting Started
 
@@ -20,7 +20,7 @@ To install it, you will need:
 
 ```Groovy
 dependencies {
-    implementation group: 'com.github.romanqed', name: 'amaya-jetty', version: '1.0.1'
+    implementation group: 'com.github.romanqed', name: 'amaya-jetty-servlet', version: '1.1.0-11'
 }
 ```
 
@@ -39,11 +39,11 @@ dependencies {
 ### Hello world
 
 ```Java
-import io.github.amayaframework.jetty.JettyServerFactory;
+import io.github.amayaframework.jetty.JettyServletServerFactory;
 
 public class Main {
     public static void main(String[] args) throws Throwable {
-        var factory = new JettyServerFactory();
+        var factory = new JettyServletServerFactory();
         var server = factory.create();
         server.setHandler(ctx -> {
             var req = ctx.getRequest();
@@ -59,14 +59,14 @@ public class Main {
 ### Custom thread pool (virtual threads)
 
 ```Java
-import io.github.amayaframework.jetty.JettyServerFactory;
+import io.github.amayaframework.jetty.JettyServletServerFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 import java.util.concurrent.Executors;
 
 public class Main {
     public static void main(String[] args) throws Throwable {
-        var factory = new JettyServerFactory(() -> {
+        var factory = new JettyServletServerFactory(() -> {
             var ret = new QueuedThreadPool();
             ret.setVirtualThreadsExecutor(Executors.newVirtualThreadPerTaskExecutor());
             return ret;
@@ -87,15 +87,13 @@ public class Main {
 
 ```Java
 import io.github.amayaframework.jetty.JettyFactory;
-import io.github.amayaframework.jetty.JettyServerFactory;
+import io.github.amayaframework.jetty.JettyServletServerFactory;
 import io.github.amayaframework.options.OptionSet;
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.session.SessionHandler;
 
 public class Main {
     public static void main(String[] args) throws Throwable {
-        var factory = new JettyServerFactory(new MyServerFactory());
+        var factory = new JettyServletServerFactory(() -> new Server());
         var server = factory.create();
         server.setHandler(ctx -> {
             var req = ctx.getRequest();
@@ -104,24 +102,6 @@ public class Main {
         });
         server.bind(8080);
         server.start();
-    }
-}
-
-final class MyServerFactory implements JettyFactory {
-
-    @Override
-    public Server create(Handler handler, OptionSet options) {
-        // Just ignore options for example
-        return create(handler);
-    }
-
-    @Override
-    public Server create(Handler handler) {
-        var ret = new Server();
-        var sessionHandler = new SessionHandler();
-        sessionHandler.setHandler(handler);
-        ret.setHandler(sessionHandler);
-        return ret;
     }
 }
 ```
