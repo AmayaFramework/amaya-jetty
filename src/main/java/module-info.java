@@ -18,6 +18,7 @@ module io.github.amayaframework.jetty {
     requires io.github.amayaframework.http;
     requires io.github.amayaframework.options;
     requires io.github.amayaframework.context;
+    requires io.github.amayaframework.service;
     requires io.github.amayaframework.server;
     requires static io.github.amayaframework.environment;
     // Exports
