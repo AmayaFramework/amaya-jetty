@@ -1,2 +1,3 @@
 rootProject.name = 'amaya-jetty'
+include 'jetty-generator'
 
