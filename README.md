@@ -1,4 +1,4 @@
-# amaya-jetty [![amaya-jetty](https://img.shields.io/maven-central/v/io.github.amayaframework/amaya-jetty?color=blue)](https://repo1.maven.org/maven2/io/github/amayaframework/amaya-jetty)
+# amaya-jetty [![amaya-jetty](https://img.shields.io/maven-central/v/io.github.amayaframework/amaya-jetty-servlet?color=blue)](https://repo1.maven.org/maven2/io/github/amayaframework/amaya-jetty-servlet)
 The amaya-server implementation is based on jetty-server with full servlet support.
 
 ## Getting Started
@@ -20,7 +20,14 @@ To install it, you will need:
 
 ```Groovy
 dependencies {
-    implementation group: 'com.github.romanqed', name: 'amaya-jetty-servlet', version: '1.1.0-11'
+    implementation group: 'io.github.amayaframework', name: 'amaya-jetty-servlet', version: '1.1.0-11'
+    // For alpn support (for ssl + http2, optionally)
+    implementation group: 'org.eclipse.jetty', name: 'jetty-alpn-server', version: '11.0.25'
+    implementation group: 'org.eclipse.jetty', name: 'jetty-alpn-java-server', version: '11.0.25'
+    // For http2 support (optionally)
+    implementation group: 'org.eclipse.jetty.http2', name: 'http2-server', version: '11.0.25'
+    // For http3 support (optionally)
+    implementation group: 'org.eclipse.jetty.http3', name: 'http3-server', version: '11.0.25'
 }
 ```
 
@@ -32,6 +39,32 @@ dependencies {
         <groupId>io.github.amayaframework</groupId>
         <artifactId>amaya-jetty-servlet</artifactId>
         <version>1.1.0-11</version>
+    </dependency>
+
+    <!-- For ALPN support (for SSL + HTTP/2, optionally) -->
+    <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-alpn-server</artifactId>
+        <version>11.0.25</version>
+    </dependency>
+    <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-alpn-java-server</artifactId>
+        <version>11.0.25</version>
+    </dependency>
+
+    <!-- For HTTP/2 support (optionally) -->
+    <dependency>
+        <groupId>org.eclipse.jetty.http2</groupId>
+        <artifactId>http2-server</artifactId>
+        <version>11.0.25</version>
+    </dependency>
+
+    <!-- For HTTP/3 support (optionally) -->
+    <dependency>
+        <groupId>org.eclipse.jetty.http3</groupId>
+        <artifactId>http3-server</artifactId>
+        <version>11.0.25</version>
     </dependency>
 </dependencies>
 ```
@@ -95,7 +128,7 @@ import org.eclipse.jetty.server.Server;
 
 public class Main {
     public static void main(String[] args) throws Throwable {
-        var factory = new JettyServletServerFactory(() -> new Server());
+        var factory = new JettyServletServerFactory(v -> new Server());
         var server = factory.create();
         server.setHandler(ctx -> {
             var req = ctx.getRequest();
