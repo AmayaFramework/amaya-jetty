@@ -125,9 +125,6 @@ public final class StrictHttpGenerator {
         var offset = status - 100;
         var prepared = offset < PREPARED.length ? PREPARED[offset] : null;
         var reason = response.getReason();
-        if (reason == null) {
-            reason = lookupMessage(status);
-        }
         if (prepared != null) {
             if (reason == null || prepared.reason.equals(reason)) {
                 header.put(prepared.line);
@@ -149,6 +146,11 @@ public final class StrictHttpGenerator {
         header.put((byte) ('0' + (status % 100) / 10));
         header.put((byte) ('0' + (status % 10)));
         header.put((byte) ' ');
+        // Trying lookup reason
+        if (reason == null) {
+            reason = lookupMessage(status);
+        }
+        // If reason not found, replace it with string code repr
         if (reason == null) {
             header.put((byte) ('0' + status / 100));
             header.put((byte) ('0' + (status % 100) / 10));
