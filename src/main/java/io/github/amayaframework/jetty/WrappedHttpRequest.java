@@ -347,7 +347,7 @@ final class WrappedHttpRequest implements HttpServletRequest {
 
     @Override
     public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) {
-        return servletRequest.startAsync(servletRequest, servletResponse);
+        return this.servletRequest.startAsync(servletRequest, servletResponse);
     }
 
     @Override
