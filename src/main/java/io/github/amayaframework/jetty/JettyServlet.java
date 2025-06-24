@@ -14,7 +14,8 @@ import org.eclipse.jetty.server.Response;
 import java.io.IOException;
 
 final class JettyServlet implements Servlet {
-    private final HttpCodeBuffer buffer;
+    private final HttpMethodBuffer methodBuffer;
+    private final HttpCodeBuffer codeBuffer;
     Runnable1<HttpContext> handler;
     HttpVersion version;
     PathTokenizer tokenizer;
@@ -22,8 +23,9 @@ final class JettyServlet implements Servlet {
     MimeFormatter formatter;
     private ServletConfig config;
 
-    JettyServlet(HttpCodeBuffer buffer) {
-        this.buffer = buffer;
+    JettyServlet(HttpMethodBuffer methodBuffer, HttpCodeBuffer codeBuffer) {
+        this.methodBuffer = methodBuffer;
+        this.codeBuffer = codeBuffer;
     }
 
     @Override
@@ -60,7 +62,7 @@ final class JettyServlet implements Servlet {
             return;
         }
         // Create amaya request
-        var amayaRequest = new JettyRequest(request, version, tokenizer, parser);
+        var amayaRequest = new JettyRequest(request, version, methodBuffer, tokenizer, parser);
         // Parse and check http method
         var method = amayaRequest.getMethod();
         if (method == null || !method.isSupported(version)) {
@@ -74,7 +76,7 @@ final class JettyServlet implements Servlet {
         var amayaResponse = new JettyResponse(response, protocol, scheme, version, formatter);
         // Create wrapped servlet entities
         var wrappedRequest = new WrappedHttpRequest(request, amayaRequest);
-        var wrappedResponse = new WrappedHttpResponse(response, amayaResponse, version, buffer, parser);
+        var wrappedResponse = new WrappedHttpResponse(response, amayaResponse, version, codeBuffer, parser);
         // Create context
         var context = new JettyHttpContext(amayaRequest, amayaResponse, wrappedRequest, wrappedResponse);
         // Run handler for context

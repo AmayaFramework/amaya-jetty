@@ -44,30 +44,24 @@ final class WrappedHttpResponse implements HttpServletResponse {
         response.setCookie(cookie);
     }
 
-    private HttpCode parseCode(int code) {
-        var ret = buffer.get(code);
-        if (ret == null) {
-            return new HttpCode(code, null, version);
-        }
-        if (!ret.isSupported(version)) {
-            throw new UnsupportedHttpDefinition(version, ret);
-        }
-        return ret;
-    }
-
     @Override
     public void setStatus(int sc) {
-        var code = parseCode(sc);
-        if (!code.isSupported(version)) {
-            throw new UnsupportedHttpDefinition(version, code);
-        }
-        // Check if jetty server does not know about this code
-        if (HttpStatus.getCode(sc) == null) {
-            jettyResponse.setStatusWithReason(sc, code.getDescription());
-        } else {
+        var code = buffer.get(sc);
+        if (code == null) {
             jettyResponse.setStatus(sc);
+            response.updateStatus(new HttpCode(sc, null, version));
+        } else {
+            if (!code.isSupported(version)) {
+                throw new UnsupportedHttpDefinition(version, code);
+            }
+            // Check if jetty server does not know about this code
+            if (HttpStatus.getCode(sc) == null) {
+                jettyResponse.setStatusWithReason(sc, code.getDescription());
+            } else {
+                jettyResponse.setStatus(sc);
+            }
+            response.updateStatus(code);
         }
-        response.updateStatus(code);
     }
 
     @Override
@@ -78,30 +72,40 @@ final class WrappedHttpResponse implements HttpServletResponse {
 
     @Override
     public void sendError(int sc, String msg) throws IOException {
-        var code = parseCode(sc);
-        if (!code.isSupported(version)) {
-            throw new UnsupportedHttpDefinition(version, code);
+        var code = buffer.get(sc);
+        if (code == null) {
+            jettyResponse.sendError(sc, msg);
+            response.updateStatus(new HttpCode(sc, null, version));
+        } else {
+            if (!code.isSupported(version)) {
+                throw new UnsupportedHttpDefinition(version, code);
+            }
+            // Check if jetty server does not know about this code
+            if (HttpStatus.getCode(sc) == null) {
+                jettyResponse.setStatusWithReason(sc, code.getDescription());
+            }
+            jettyResponse.sendError(sc, msg);
+            response.updateStatus(code);
         }
-        // Check if jetty server does not know about this code
-        if (HttpStatus.getCode(sc) == null) {
-            jettyResponse.setStatusWithReason(sc, code.getDescription());
-        }
-        jettyResponse.sendError(sc, msg);
-        response.updateStatus(code);
     }
 
     @Override
     public void sendError(int sc) throws IOException {
-        var code = parseCode(sc);
-        if (!code.isSupported(version)) {
-            throw new UnsupportedHttpDefinition(version, code);
+        var code = buffer.get(sc);
+        if (code == null) {
+            jettyResponse.sendError(sc);
+            response.updateStatus(new HttpCode(sc, null, version));
+        } else {
+            if (!code.isSupported(version)) {
+                throw new UnsupportedHttpDefinition(version, code);
+            }
+            // Check if jetty server does not know about this code
+            if (HttpStatus.getCode(sc) == null) {
+                jettyResponse.setStatusWithReason(sc, code.getDescription());
+            }
+            jettyResponse.sendError(sc);
+            response.updateStatus(code);
         }
-        // Check if jetty server does not know about this code
-        if (HttpStatus.getCode(sc) == null) {
-            jettyResponse.setStatusWithReason(sc, code.getDescription());
-        }
-        jettyResponse.sendError(sc);
-        response.updateStatus(code);
     }
 
     @Override

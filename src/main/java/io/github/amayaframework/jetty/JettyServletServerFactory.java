@@ -2,6 +2,7 @@ package io.github.amayaframework.jetty;
 
 import io.github.amayaframework.environment.Environment;
 import io.github.amayaframework.http.HttpCode;
+import io.github.amayaframework.http.HttpMethod;
 import io.github.amayaframework.options.OptionSet;
 import io.github.amayaframework.options.Options;
 import io.github.amayaframework.server.HttpServer;
@@ -225,6 +226,17 @@ public class JettyServletServerFactory implements HttpServerFactory {
         config.setHttpVersion(version);
     }
 
+    private static HttpMethodBuffer getMethodBuffer(OptionSet options) {
+        if (options == null) {
+            return HttpMethod::of;
+        }
+        var buffer = options.get(JettyOptions.HTTP_METHOD_BUFFER);
+        if (buffer == null) {
+            return HttpMethod::of;
+        }
+        return buffer;
+    }
+
     private static HttpCodeBuffer getCodeBuffer(OptionSet options) {
         if (options == null) {
             return HttpCode::of;
@@ -275,8 +287,9 @@ public class JettyServletServerFactory implements HttpServerFactory {
             processBindOptions(addresses, set);
         }
         // Prepare jetty servlet
-        var buffer = getCodeBuffer(set);
-        var servlet = new JettyServlet(buffer);
+        var methodBuffer = getMethodBuffer(set);
+        var codeBuffer = getCodeBuffer(set);
+        var servlet = new JettyServlet(methodBuffer, codeBuffer);
         // Add jetty servlet to / path for generic path catch
         handler.addServlet(new ServletHolder(servlet), "/");
         return new JettyHttpServer(server, addresses, config, servlet, context);
@@ -301,7 +314,7 @@ public class JettyServletServerFactory implements HttpServerFactory {
         var addresses = new AddressSet(server, root, Options.empty());
         var config = new JettyHttpConfig(addresses, context);
         // Prepare jetty servlet
-        var servlet = new JettyServlet(HttpCode::of);
+        var servlet = new JettyServlet(HttpMethod::of, HttpCode::of);
         // Add jetty servlet to / path for generic path catch
         handler.addServlet(new ServletHolder(servlet), "/");
         return new JettyHttpServer(server, addresses, config, servlet, context);

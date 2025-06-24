@@ -36,21 +36,21 @@ public final class JettyOptions {
     /**
      * The key for the listened ip address option.
      * <br>
-     * Required type: {@link java.net.InetSocketAddress}.
+     * Required type: {@link InetSocketAddress}.
      */
     public static final Key<InetSocketAddress> IP = Key.of("ip", InetSocketAddress.class);
 
     /**
      * The key for the listened ip addresses option.
      * <br>
-     * Required type: {@link Iterable} of {@link java.net.InetSocketAddress}.
+     * Required type: {@link Iterable} of {@link InetSocketAddress}.
      */
     public static final Key<Iterable<InetSocketAddress>> IPS = Key.of("ips", new JType<>(){});
 
     /**
      * The key for the http version option.
      * <br>
-     * Required type: {@link io.github.amayaframework.http.HttpVersion}.
+     * Required type: {@link HttpVersion}.
      */
     public static final Key<HttpVersion> HTTP_VERSION = Key.of("http_version", HttpVersion.class);
 
@@ -60,6 +60,16 @@ public final class JettyOptions {
      * Required type: {@link Boolean}.
      */
     public static final String ENABLE_SESSIONS = "enable_sessions";
+
+    /**
+     * The key for the http method buffer option.
+     * <br>
+     * Required type: {@link HttpMethodBuffer}
+     */
+    public static final Key<HttpMethodBuffer> HTTP_METHOD_BUFFER = Key.of(
+            "http_method_buffer",
+            HttpMethodBuffer.class
+    );
 
     /**
      * The key for the http code buffer option.
@@ -85,7 +95,7 @@ public final class JettyOptions {
     /**
      * The key for the http configurer option.
      * <br>
-     * Required type: {@link java.util.function.BiConsumer} of {@link org.eclipse.jetty.server.HttpConfiguration}.
+     * Required type: {@link BiConsumer} of {@link HttpConfiguration}.
      */
     public static final Key<BiConsumer<HttpVersion, HttpConfiguration>> HTTP_CONFIGURER = Key.of(
             "http_configurer",
