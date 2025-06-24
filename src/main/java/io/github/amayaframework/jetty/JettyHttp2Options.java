@@ -10,6 +10,8 @@ import java.util.function.Consumer;
  * A class containing the keys for the http/2 server options supported by the {@code JettyServerFactory}.
  */
 public final class JettyHttp2Options {
+    private JettyHttp2Options() {
+    }
 
     /**
      * The key for the http/2 factory configurer option.
@@ -18,9 +20,6 @@ public final class JettyHttp2Options {
      */
     public static final Key<Consumer<HTTP2ServerConnectionFactory>> HTTP2_CONFIGURER = Key.of(
             "http2_configurer",
-            new JType<>(){}
+            new JType<>() {}
     );
-
-    private JettyHttp2Options() {
-    }
 }

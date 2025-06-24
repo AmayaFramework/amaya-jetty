@@ -11,6 +11,8 @@ import java.util.function.Consumer;
  * A class containing the keys for the http/3 server options supported by the {@code JettyServerFactory}.
  */
 public final class JettyHttp3Options {
+    private JettyHttp3Options() {
+    }
 
     /**
      * The key for the http/3 configurer option.
@@ -31,7 +33,4 @@ public final class JettyHttp3Options {
             "quic_configurer",
             new JType<>(){}
     );
-
-    private JettyHttp3Options() {
-    }
 }

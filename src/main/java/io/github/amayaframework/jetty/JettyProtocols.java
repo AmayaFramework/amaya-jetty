@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class JettyProtocols {
     private static final ConnectorFactory HTTP1_FACTORY = new Http1ConnectorFactory();
     private static final Map<HttpVersion, ConnectorFactory> FACTORIES = new ConcurrentHashMap<>();
+
     private JettyProtocols() {
     }
 
