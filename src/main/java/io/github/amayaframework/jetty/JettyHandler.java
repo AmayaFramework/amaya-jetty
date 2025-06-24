@@ -10,7 +10,8 @@ public interface JettyHandler {
 
     /**
      * Handles jetty connection with given request and response descriptors.
-     * @param request the specified {@link Request} instance
+     *
+     * @param request  the specified {@link Request} instance
      * @param response the specified {@link Response} instance
      * @throws Throwable if any problems occurred
      */

@@ -62,6 +62,16 @@ public final class JettyOptions {
     public static final String ENABLE_SESSIONS = "enable_sessions";
 
     /**
+     * The key for the http method buffer option.
+     * <br>
+     * Required type: {@link HttpMethodBuffer}
+     */
+    public static final Key<HttpMethodBuffer> HTTP_METHOD_BUFFER = Key.of(
+            "http_method_buffer",
+            HttpMethodBuffer.class
+    );
+
+    /**
      * The key for the http code buffer option.
      * <br>
      * Required type: {@link HttpCodeBuffer}.

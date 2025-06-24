@@ -12,9 +12,10 @@ public interface JettyHandlerConfigurer {
     /**
      * Configures given jetty {@link Server} instance with given jetty handler,
      * {@link OptionSet} and {@link Environment}.
-     * @param server the specified jetty {@link Server}  instance
-     * @param handler the specified {@link JettyHandler} instance
-     * @param options the specified {@link OptionSet} instance
+     *
+     * @param server      the specified jetty {@link Server}  instance
+     * @param handler     the specified {@link JettyHandler} instance
+     * @param options     the specified {@link OptionSet} instance
      * @param environment the specified {@link Environment} instance
      */
     default void configure(Server server, JettyHandler handler, OptionSet options, Environment environment) {
@@ -23,7 +24,8 @@ public interface JettyHandlerConfigurer {
 
     /**
      * Configures given jetty {@link Server} instance with given jetty handler and {@link OptionSet}.
-     * @param server the specified jetty {@link Server}  instance
+     *
+     * @param server  the specified jetty {@link Server}  instance
      * @param handler the specified {@link JettyHandler} instance
      * @param options the specified {@link OptionSet} instance
      */

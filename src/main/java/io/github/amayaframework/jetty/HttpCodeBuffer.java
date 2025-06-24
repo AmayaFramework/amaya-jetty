@@ -9,6 +9,7 @@ public interface HttpCodeBuffer {
 
     /**
      * Gets an {@link HttpCode} instance assigned with given code.
+     *
      * @param code the specified http code
      * @return the {@link HttpCode} instance if found, null otherwise
      */

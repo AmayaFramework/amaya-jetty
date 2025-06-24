@@ -11,7 +11,8 @@ public interface JettyFactory {
 
     /**
      * Creates a {@link Server} instance with the specified {@link OptionSet} and {@link Environment}.
-     * @param options the option set containing jetty server options
+     *
+     * @param options     the option set containing jetty server options
      * @param environment the specified {@link Environment} instance
      * @return the {@link Server} instance
      */
