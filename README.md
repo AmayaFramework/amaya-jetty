@@ -1,4 +1,4 @@
-# amaya-jetty [![amaya-jetty](https://img.shields.io/maven-central/v/io.github.amayaframework/amaya-jetty?color=blue)](https://repo1.maven.org/maven2/io/github/amayaframework/amaya-jetty)
+# amaya-jetty [![amaya-jetty](https://img.shields.io/maven-central/v/io.github.amayaframework/amaya-jetty/1.1.0-12?color=blue)](https://repo1.maven.org/maven2/io/github/amayaframework/amaya-jetty)
 The amaya-server implementation is based on jetty-server.
 
 ## Getting Started
@@ -20,7 +20,7 @@ To install it, you will need:
 
 ```Groovy
 dependencies {
-    implementation group: 'io.github.amayaframework', name: 'amaya-jetty', version: '1.0.0-12'
+    implementation group: 'io.github.amayaframework', name: 'amaya-jetty', version: '1.1.0-12'
     // For alpn support (for ssl + http2, optionally)
     implementation group: 'org.eclipse.jetty', name: 'jetty-alpn-server', version: '12.0.22'
     implementation group: 'org.eclipse.jetty', name: 'jetty-alpn-java-server', version: '12.0.22'
@@ -38,7 +38,7 @@ dependencies {
     <dependency>
         <groupId>io.github.amayaframework</groupId>
         <artifactId>amaya-jetty</artifactId>
-        <version>1.0.0-12</version>
+        <version>1.1.0-12</version>
     </dependency>
 
     <!-- For ALPN support (for SSL + HTTP/2, optionally) -->
