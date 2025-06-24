@@ -20,7 +20,7 @@ To install it, you will need:
 
 ```Groovy
 dependencies {
-    implementation group: 'io.github.amayaframework', name: 'amaya-jetty-servlet', version: '1.1.1-11'
+    implementation group: 'io.github.amayaframework', name: 'amaya-jetty-servlet', version: '1.1.2-11'
     // For alpn support (for ssl + http2, optionally)
     implementation group: 'org.eclipse.jetty', name: 'jetty-alpn-server', version: '11.0.25'
     implementation group: 'org.eclipse.jetty', name: 'jetty-alpn-java-server', version: '11.0.25'
@@ -38,7 +38,7 @@ dependencies {
     <dependency>
         <groupId>io.github.amayaframework</groupId>
         <artifactId>amaya-jetty-servlet</artifactId>
-        <version>1.1.1-11</version>
+        <version>1.1.2-11</version>
     </dependency>
 
     <!-- For ALPN support (for SSL + HTTP/2, optionally) -->
