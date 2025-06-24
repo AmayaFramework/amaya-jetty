@@ -1,6 +1,5 @@
 package io.github.amayaframework.jetty;
 
-import com.github.romanqed.jetty.generator.StrictHttpConnectionFactory;
 import io.github.amayaframework.http.HttpVersion;
 import io.github.amayaframework.options.OptionSet;
 import org.eclipse.jetty.server.*;
@@ -10,8 +9,11 @@ import java.nio.file.Path;
 
 final class Http1ConnectorFactory implements ConnectorFactory {
 
-    private static ConnectionFactory[] createFactories(Path root, HttpConfiguration config, SSLConfig sslConfig) {
-        var httpFactory = new StrictHttpConnectionFactory(config);
+    private static ConnectionFactory[] createFactories(Path root,
+                                                       HttpConfiguration config,
+                                                       SSLConfig sslConfig,
+                                                       OptionSet options) {
+        var httpFactory = Util.createHttpConnectionFactory(config, options);
         if (sslConfig == null) {
             return new ConnectionFactory[]{httpFactory};
         }
@@ -28,7 +30,7 @@ final class Http1ConnectorFactory implements ConnectorFactory {
         if (sslConfig != null) {
             Util.addSecure(config, address.getPort(), options);
         }
-        var factories = createFactories(root, config, sslConfig);
+        var factories = createFactories(root, config, sslConfig, options);
         return Util.createConnector(server, address, factories, options);
     }
 }

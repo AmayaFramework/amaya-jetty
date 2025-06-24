@@ -44,6 +44,21 @@ final class WrappedHttpResponse implements HttpServletResponse {
     }
 
     @Override
+    public void setStatus(int sc) {
+        var code = buffer.get(sc);
+        if (code == null) {
+            jettyResponse.setStatus(sc);
+            response.updateStatus(new HttpCode(sc, null, version));
+        } else {
+            if (!code.isSupported(version)) {
+                throw new UnsupportedHttpDefinition(version, code);
+            }
+            jettyResponse.setStatus(sc);
+            response.updateStatus(code);
+        }
+    }
+
+    @Override
     @SuppressWarnings("deprecation")
     public void setStatus(int sc, String sm) {
         setStatus(sc);
@@ -52,21 +67,31 @@ final class WrappedHttpResponse implements HttpServletResponse {
     @Override
     public void sendError(int sc, String msg) throws IOException {
         var code = buffer.get(sc);
-        if (code != null && !code.isSupported(version)) {
-            throw new UnsupportedHttpDefinition(version, code);
+        if (code == null) {
+            jettyResponse.sendError(sc, msg);
+            response.updateStatus(new HttpCode(sc, null, version));
+        } else {
+            if (!code.isSupported(version)) {
+                throw new UnsupportedHttpDefinition(version, code);
+            }
+            jettyResponse.sendError(sc, msg);
+            response.updateStatus(code);
         }
-        jettyResponse.sendError(sc, msg);
-        response.updateStatus(code);
     }
 
     @Override
     public void sendError(int sc) throws IOException {
         var code = buffer.get(sc);
-        if (code != null && !code.isSupported(version)) {
-            throw new UnsupportedHttpDefinition(version, code);
+        if (code == null) {
+            jettyResponse.sendError(sc);
+            response.updateStatus(new HttpCode(sc, null, version));
+        } else {
+            if (!code.isSupported(version)) {
+                throw new UnsupportedHttpDefinition(version, code);
+            }
+            jettyResponse.sendError(sc);
+            response.updateStatus(code);
         }
-        jettyResponse.sendError(sc);
-        response.updateStatus(code);
     }
 
     @Override
@@ -89,6 +114,31 @@ final class WrappedHttpResponse implements HttpServletResponse {
     }
 
     @Override
+    public void setCharacterEncoding(String charset) {
+        if (charset == null) {
+            jettyResponse.setCharacterEncoding(null);
+            response.updateCharset(StandardCharsets.ISO_8859_1);
+            return;
+        }
+        jettyResponse.setCharacterEncoding(charset);
+        response.updateCharset(Charset.forName(charset));
+    }
+
+    @Override
+    public void setContentType(String type) {
+        if (type == null) {
+            jettyResponse.setContentType(null);
+            response.updateMimeData(null);
+            return;
+        }
+        var data = parser.read(type);
+        jettyResponse.setContentType(type);
+        response.updateMimeData(data);
+    }
+
+    // Plain wrap methods
+
+    @Override
     public boolean containsHeader(String name) {
         return jettyResponse.containsHeader(name);
     }
@@ -102,8 +152,6 @@ final class WrappedHttpResponse implements HttpServletResponse {
     public String encodeRedirectURL(String url) {
         return jettyResponse.encodeRedirectURL(url);
     }
-
-    // Plain wrap methods
 
     @Override
     @SuppressWarnings("deprecation")
@@ -153,16 +201,6 @@ final class WrappedHttpResponse implements HttpServletResponse {
     }
 
     @Override
-    public void setStatus(int sc) {
-        var code = buffer.get(sc);
-        if (code != null && !code.isSupported(version)) {
-            throw new UnsupportedHttpDefinition(version, code);
-        }
-        jettyResponse.setStatus(sc);
-        response.updateStatus(code);
-    }
-
-    @Override
     public String getHeader(String name) {
         return jettyResponse.getHeader(name);
     }
@@ -183,31 +221,8 @@ final class WrappedHttpResponse implements HttpServletResponse {
     }
 
     @Override
-    public void setCharacterEncoding(String charset) {
-        if (charset == null) {
-            jettyResponse.setCharacterEncoding(null);
-            response.updateCharset(StandardCharsets.ISO_8859_1);
-            return;
-        }
-        jettyResponse.setCharacterEncoding(charset);
-        response.updateCharset(Charset.forName(charset));
-    }
-
-    @Override
     public String getContentType() {
         return jettyResponse.getContentType();
-    }
-
-    @Override
-    public void setContentType(String type) {
-        if (type == null) {
-            jettyResponse.setContentType(null);
-            response.updateMimeData(null);
-            return;
-        }
-        var data = parser.read(type);
-        jettyResponse.setContentType(type);
-        response.updateMimeData(data);
     }
 
     @Override

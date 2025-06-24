@@ -1,6 +1,5 @@
 package io.github.amayaframework.jetty;
 
-import com.github.romanqed.jetty.generator.StrictHttpConnectionFactory;
 import io.github.amayaframework.http.HttpVersion;
 import io.github.amayaframework.options.OptionSet;
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
@@ -22,7 +21,7 @@ final class Http2ConnectorFactory implements ConnectorFactory {
     }
 
     private static ConnectionFactory[] createH2C(HttpConfiguration config, OptionSet options) {
-        var http1Factory = new StrictHttpConnectionFactory(config);
+        var http1Factory = Util.createHttpConnectionFactory(config, options);
         var http2Factory = new HTTP2CServerConnectionFactory(config);
         configure(http2Factory, options);
         // h1, h2
@@ -33,7 +32,7 @@ final class Http2ConnectorFactory implements ConnectorFactory {
                                                 HttpConfiguration httpConfig,
                                                 SSLConfig sslConfig,
                                                 OptionSet options) {
-        var http1Factory = new StrictHttpConnectionFactory(httpConfig);
+        var http1Factory = Util.createHttpConnectionFactory(httpConfig, options);
         var http2Factory = new HTTP2ServerConnectionFactory(httpConfig);
         configure(http2Factory, options);
         var alpnFactory = new ALPNServerConnectionFactory();
