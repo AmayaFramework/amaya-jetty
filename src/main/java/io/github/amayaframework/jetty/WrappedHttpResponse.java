@@ -7,7 +7,6 @@ import io.github.amayaframework.server.MimeParser;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import org.eclipse.jetty.ee9.nested.Response;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -15,21 +14,23 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 final class WrappedHttpResponse implements HttpServletResponse {
-    private final Response jettyResponse;
+    private final HttpServletResponse servletResponse;
     private final HttpVersion version;
     private final HttpCodeBuffer buffer;
     private final JettyResponse response;
     private final MimeParser parser;
 
-    WrappedHttpResponse(Response jettyResponse,
+    WrappedHttpResponse(HttpServletResponse servletResponse,
                         JettyResponse response,
                         HttpVersion version,
                         HttpCodeBuffer buffer,
                         MimeParser parser) {
-        this.jettyResponse = jettyResponse;
+        this.servletResponse = servletResponse;
         this.response = response;
         this.version = version;
         this.buffer = buffer;
@@ -47,34 +48,28 @@ final class WrappedHttpResponse implements HttpServletResponse {
     public void setStatus(int sc) {
         var code = buffer.get(sc);
         if (code == null) {
-            jettyResponse.setStatus(sc);
+            servletResponse.setStatus(sc);
             response.updateStatus(new HttpCode(sc, null, version));
         } else {
             if (!code.isSupported(version)) {
                 throw new UnsupportedHttpDefinition(version, code);
             }
-            jettyResponse.setStatus(sc);
+            servletResponse.setStatus(sc);
             response.updateStatus(code);
         }
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public void setStatus(int sc, String sm) {
-        setStatus(sc);
     }
 
     @Override
     public void sendError(int sc, String msg) throws IOException {
         var code = buffer.get(sc);
         if (code == null) {
-            jettyResponse.sendError(sc, msg);
+            servletResponse.sendError(sc, msg);
             response.updateStatus(new HttpCode(sc, null, version));
         } else {
             if (!code.isSupported(version)) {
                 throw new UnsupportedHttpDefinition(version, code);
             }
-            jettyResponse.sendError(sc, msg);
+            servletResponse.sendError(sc, msg);
             response.updateStatus(code);
         }
     }
@@ -83,13 +78,13 @@ final class WrappedHttpResponse implements HttpServletResponse {
     public void sendError(int sc) throws IOException {
         var code = buffer.get(sc);
         if (code == null) {
-            jettyResponse.sendError(sc);
+            servletResponse.sendError(sc);
             response.updateStatus(new HttpCode(sc, null, version));
         } else {
             if (!code.isSupported(version)) {
                 throw new UnsupportedHttpDefinition(version, code);
             }
-            jettyResponse.sendError(sc);
+            servletResponse.sendError(sc);
             response.updateStatus(code);
         }
     }
@@ -97,181 +92,181 @@ final class WrappedHttpResponse implements HttpServletResponse {
     @Override
     public void sendRedirect(String location) throws IOException {
         Objects.requireNonNull(location);
-        jettyResponse.sendRedirect(location);
+        servletResponse.sendRedirect(location);
         response.updateStatus(HttpCode.FOUND);
     }
 
     @Override
     public void setContentLength(int len) {
-        jettyResponse.setContentLength(len);
+        servletResponse.setContentLength(len);
         response.updateContentLength(len);
     }
 
     @Override
     public void setContentLengthLong(long len) {
-        jettyResponse.setContentLengthLong(len);
+        servletResponse.setContentLengthLong(len);
         response.updateContentLength(len);
     }
 
     @Override
     public void setCharacterEncoding(String charset) {
         if (charset == null) {
-            jettyResponse.setCharacterEncoding(null);
+            servletResponse.setCharacterEncoding(null);
             response.updateCharset(StandardCharsets.ISO_8859_1);
             return;
         }
-        jettyResponse.setCharacterEncoding(charset);
+        servletResponse.setCharacterEncoding(charset);
         response.updateCharset(Charset.forName(charset));
     }
 
     @Override
     public void setContentType(String type) {
         if (type == null) {
-            jettyResponse.setContentType(null);
+            servletResponse.setContentType(null);
             response.updateMimeData(null);
             return;
         }
         var data = parser.read(type);
-        jettyResponse.setContentType(type);
+        servletResponse.setContentType(type);
         response.updateMimeData(data);
+    }
+
+    // New servlet ee10 methods
+
+    @Override
+    public void setTrailerFields(Supplier<Map<String, String>> supplier) {
+        servletResponse.setTrailerFields(supplier);
+    }
+
+    @Override
+    public Supplier<Map<String, String>> getTrailerFields() {
+        return servletResponse.getTrailerFields();
     }
 
     // Plain wrap methods
 
     @Override
     public boolean containsHeader(String name) {
-        return jettyResponse.containsHeader(name);
+        return servletResponse.containsHeader(name);
     }
 
     @Override
     public String encodeURL(String url) {
-        return jettyResponse.encodeURL(url);
+        return servletResponse.encodeURL(url);
     }
 
     @Override
     public String encodeRedirectURL(String url) {
-        return jettyResponse.encodeRedirectURL(url);
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public String encodeUrl(String url) {
-        return jettyResponse.encodeUrl(url);
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public String encodeRedirectUrl(String url) {
-        return jettyResponse.encodeRedirectUrl(url);
+        return servletResponse.encodeRedirectURL(url);
     }
 
     @Override
     public void setDateHeader(String name, long date) {
-        jettyResponse.setDateHeader(name, date);
+        servletResponse.setDateHeader(name, date);
     }
 
     @Override
     public void addDateHeader(String name, long date) {
-        jettyResponse.setDateHeader(name, date);
+        servletResponse.setDateHeader(name, date);
     }
 
     @Override
     public void setHeader(String name, String value) {
-        jettyResponse.setHeader(name, value);
+        servletResponse.setHeader(name, value);
     }
 
     @Override
     public void addHeader(String name, String value) {
-        jettyResponse.addHeader(name, value);
+        servletResponse.addHeader(name, value);
     }
 
     @Override
     public void setIntHeader(String name, int value) {
-        jettyResponse.setIntHeader(name, value);
+        servletResponse.setIntHeader(name, value);
     }
 
     @Override
     public void addIntHeader(String name, int value) {
-        jettyResponse.addIntHeader(name, value);
+        servletResponse.addIntHeader(name, value);
     }
 
     @Override
     public int getStatus() {
-        return jettyResponse.getStatus();
+        return servletResponse.getStatus();
     }
 
     @Override
     public String getHeader(String name) {
-        return jettyResponse.getHeader(name);
+        return servletResponse.getHeader(name);
     }
 
     @Override
     public Collection<String> getHeaders(String name) {
-        return jettyResponse.getHeaders(name);
+        return servletResponse.getHeaders(name);
     }
 
     @Override
     public Collection<String> getHeaderNames() {
-        return jettyResponse.getHeaderNames();
+        return servletResponse.getHeaderNames();
     }
 
     @Override
     public String getCharacterEncoding() {
-        return jettyResponse.getCharacterEncoding();
+        return servletResponse.getCharacterEncoding();
     }
 
     @Override
     public String getContentType() {
-        return jettyResponse.getContentType();
+        return servletResponse.getContentType();
     }
 
     @Override
     public ServletOutputStream getOutputStream() throws IOException {
-        return jettyResponse.getOutputStream();
+        return servletResponse.getOutputStream();
     }
 
     @Override
     public PrintWriter getWriter() throws IOException {
-        return jettyResponse.getWriter();
+        return servletResponse.getWriter();
     }
 
     @Override
     public int getBufferSize() {
-        return jettyResponse.getBufferSize();
+        return servletResponse.getBufferSize();
     }
 
     @Override
     public void setBufferSize(int size) {
-        jettyResponse.setBufferSize(size);
+        servletResponse.setBufferSize(size);
     }
 
     @Override
     public void flushBuffer() throws IOException {
-        jettyResponse.flushBuffer();
+        servletResponse.flushBuffer();
     }
 
     @Override
     public void resetBuffer() {
-        jettyResponse.resetBuffer();
+        servletResponse.resetBuffer();
     }
 
     @Override
     public boolean isCommitted() {
-        return jettyResponse.isCommitted();
+        return servletResponse.isCommitted();
     }
 
     @Override
     public void reset() {
-        jettyResponse.reset();
+        servletResponse.reset();
     }
 
     @Override
     public Locale getLocale() {
-        return jettyResponse.getLocale();
+        return servletResponse.getLocale();
     }
 
     @Override
     public void setLocale(Locale loc) {
-        jettyResponse.setLocale(loc);
+        servletResponse.setLocale(loc);
     }
 }

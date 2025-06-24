@@ -2,7 +2,7 @@ package io.github.amayaframework.jetty;
 
 import io.github.amayaframework.environment.Environment;
 import io.github.amayaframework.options.OptionSet;
-import org.eclipse.jetty.ee9.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 
 /**
  * An interface describing an abstract jetty {@link ServletContextHandler} configurer.

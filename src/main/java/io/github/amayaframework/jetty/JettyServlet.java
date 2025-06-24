@@ -7,9 +7,8 @@ import io.github.amayaframework.server.MimeFormatter;
 import io.github.amayaframework.server.MimeParser;
 import io.github.amayaframework.server.PathTokenizer;
 import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.eclipse.jetty.ee9.nested.Request;
-import org.eclipse.jetty.ee9.nested.Response;
 
 import java.io.IOException;
 
@@ -38,27 +37,24 @@ final class JettyServlet implements Servlet {
         return config;
     }
 
-    private void handle(Request request, Response response) throws Throwable {
-        // Because there are no request handling, we must set baseRequest.setHandled(false)
+    private void handle(HttpServletRequest request, HttpServletResponse response) throws Throwable {
+        // Because there are no request handling, we just do nothing
         if (handler == null) {
-            request.setHandled(false);
             return;
         }
-        // Get jetty http version
-        var jettyVersion = request.getHttpVersion();
-        if (jettyVersion == null) {
+        // Get raw http version
+        var rawVersion = request.getProtocol();
+        if (rawVersion == null) {
             response.sendError(HttpServletResponse.SC_HTTP_VERSION_NOT_SUPPORTED, "Unknown http version");
-            request.setHandled(true);
             return;
         }
         // Parse and check http version
-        var version = HttpVersion.of(jettyVersion.getVersion());
+        var version = HttpVersion.of(rawVersion);
         if (version == null || version.after(this.version)) {
             response.sendError(
                     HttpServletResponse.SC_HTTP_VERSION_NOT_SUPPORTED,
-                    "Version " + jettyVersion + " not supported"
+                    "Version " + rawVersion + " not supported"
             );
-            request.setHandled(true);
             return;
         }
         // Create amaya request
@@ -67,13 +63,11 @@ final class JettyServlet implements Servlet {
         var method = amayaRequest.getMethod();
         if (method == null || !method.isSupported(version)) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown http method");
-            request.setHandled(true);
             return;
         }
         // Create amaya response
-        var protocol = jettyVersion.toString();
         var scheme = request.getScheme();
-        var amayaResponse = new JettyResponse(response, protocol, scheme, version, formatter);
+        var amayaResponse = new JettyResponse(response, rawVersion, scheme, version, formatter);
         // Create wrapped servlet entities
         var wrappedRequest = new WrappedHttpRequest(request, amayaRequest);
         var wrappedResponse = new WrappedHttpResponse(response, amayaResponse, version, codeBuffer, parser);
@@ -81,14 +75,12 @@ final class JettyServlet implements Servlet {
         var context = new JettyHttpContext(amayaRequest, amayaResponse, wrappedRequest, wrappedResponse);
         // Run handler for context
         handler.run(context);
-        // Mark request as handled
-        request.setHandled(true);
     }
 
     @Override
     public void service(ServletRequest request, ServletResponse response) throws ServletException, IOException {
         try {
-            handle((Request) request, (Response) response);
+            handle((HttpServletRequest) request, (HttpServletResponse) response);
         } catch (Error | RuntimeException | IOException | ServletException e) {
             throw e;
         } catch (Throwable e) {

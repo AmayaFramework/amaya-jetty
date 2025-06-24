@@ -7,9 +7,9 @@ import io.github.amayaframework.options.OptionSet;
 import io.github.amayaframework.options.Options;
 import io.github.amayaframework.server.HttpServer;
 import io.github.amayaframework.server.HttpServerFactory;
-import org.eclipse.jetty.ee9.nested.SessionHandler;
-import org.eclipse.jetty.ee9.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee9.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.servlet.SessionHandler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.thread.ThreadPool;
 

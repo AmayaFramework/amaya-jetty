@@ -27,6 +27,51 @@ final class WrappedHttpRequest implements HttpServletRequest {
         return servletRequest.getAuthType();
     }
 
+    // Method updates also amaya request
+
+    @Override
+    public void setCharacterEncoding(String s) throws UnsupportedEncodingException {
+        servletRequest.setCharacterEncoding(s);
+        request.updateCharset(Charset.forName(s));
+    }
+
+    // New servlet ee10 methods
+
+    @Override
+    public HttpServletMapping getHttpServletMapping() {
+        return servletRequest.getHttpServletMapping();
+    }
+
+    @Override
+    public PushBuilder newPushBuilder() {
+        return servletRequest.newPushBuilder();
+    }
+
+    @Override
+    public Map<String, String> getTrailerFields() {
+        return servletRequest.getTrailerFields();
+    }
+
+    @Override
+    public boolean isTrailerFieldsReady() {
+        return servletRequest.isTrailerFieldsReady();
+    }
+
+    @Override
+    public String getRequestId() {
+        return servletRequest.getRequestId();
+    }
+
+    @Override
+    public String getProtocolRequestId() {
+        return servletRequest.getProtocolRequestId();
+    }
+
+    @Override
+    public ServletConnection getServletConnection() {
+        return servletRequest.getServletConnection();
+    }
+
     // Plain wrap methods
 
     @Override
@@ -150,12 +195,6 @@ final class WrappedHttpRequest implements HttpServletRequest {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public boolean isRequestedSessionIdFromUrl() {
-        return servletRequest.isRequestedSessionIdFromUrl();
-    }
-
-    @Override
     public boolean authenticate(HttpServletResponse httpServletResponse) throws IOException, ServletException {
         return servletRequest.authenticate(httpServletResponse);
     }
@@ -198,13 +237,6 @@ final class WrappedHttpRequest implements HttpServletRequest {
     @Override
     public String getCharacterEncoding() {
         return servletRequest.getCharacterEncoding();
-    }
-
-    // Method updates also amaya request
-    @Override
-    public void setCharacterEncoding(String s) throws UnsupportedEncodingException {
-        servletRequest.setCharacterEncoding(s);
-        request.updateCharset(Charset.forName(s));
     }
 
     @Override
@@ -313,12 +345,6 @@ final class WrappedHttpRequest implements HttpServletRequest {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public String getRealPath(String s) {
-        return servletRequest.getRealPath(s);
-    }
-
-    @Override
     public int getRemotePort() {
         return servletRequest.getRemotePort();
     }
@@ -350,7 +376,7 @@ final class WrappedHttpRequest implements HttpServletRequest {
 
     @Override
     public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) {
-        return servletRequest.startAsync(servletRequest, servletResponse);
+        return this.servletRequest.startAsync(servletRequest, servletResponse);
     }
 
     @Override

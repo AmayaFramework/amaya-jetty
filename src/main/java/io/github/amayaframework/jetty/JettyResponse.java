@@ -5,14 +5,14 @@ import io.github.amayaframework.http.HttpCode;
 import io.github.amayaframework.http.HttpVersion;
 import io.github.amayaframework.http.MimeData;
 import io.github.amayaframework.server.MimeFormatter;
-import org.eclipse.jetty.ee9.nested.Response;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.nio.charset.Charset;
 
 final class JettyResponse extends AbstractHttpResponse {
     private final MimeFormatter formatter;
 
-    JettyResponse(Response response,
+    JettyResponse(HttpServletResponse response,
                   String protocol,
                   String scheme,
                   HttpVersion version,
