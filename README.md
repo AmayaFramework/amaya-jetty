@@ -5,7 +5,7 @@ The amaya-server implementation is based on jetty-server.
 
 To install it, you will need:
 
-* Java 11+
+* Java 17+
 * Maven/Gradle
 
 ### Features
@@ -20,18 +20,52 @@ To install it, you will need:
 
 ```Groovy
 dependencies {
-    implementation group: 'com.github.romanqed', name: 'amaya-jetty', version: '1.0.1'
+    implementation group: 'io.github.amayaframework', name: 'amaya-jetty', version: '1.0.0-12'
+    // For alpn support (for ssl + http2, optionally)
+    implementation group: 'org.eclipse.jetty', name: 'jetty-alpn-server', version: '12.0.22'
+    implementation group: 'org.eclipse.jetty', name: 'jetty-alpn-java-server', version: '12.0.22'
+    // For http2 support (optionally)
+    implementation group: 'org.eclipse.jetty.http2', name: 'jetty-http2-server', version: '12.0.22'
+    // For http3 support (optionally)
+    implementation group: 'org.eclipse.jetty.http3', name: 'jetty-http3-server', version: '12.0.22'
 }
 ```
 
 ### Maven dependency
 
 ```
-<dependency>
-    <groupId>io.github.amayaframework</groupId>
-    <artifactId>amaya-jetty</artifactId>
-    <version>1.0.1</version>
-</dependency>
+<dependencies>
+    <dependency>
+        <groupId>io.github.amayaframework</groupId>
+        <artifactId>amaya-jetty</artifactId>
+        <version>1.0.0-12</version>
+    </dependency>
+
+    <!-- For ALPN support (for SSL + HTTP/2, optionally) -->
+    <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-alpn-server</artifactId>
+        <version>12.0.22</version>
+    </dependency>
+    <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-alpn-java-server</artifactId>
+        <version>12.0.22</version>
+    </dependency>
+
+    <!-- For HTTP/2 support (optionally) -->
+    <dependency>
+        <groupId>org.eclipse.jetty.http2</groupId>
+        <artifactId>jetty-http2-server</artifactId>
+        <version>12.0.22</version>
+    </dependency>
+
+    <!-- For HTTP/3 support (optionally) -->
+    <dependency>
+        <groupId>org.eclipse.jetty.http3</groupId>
+        <artifactId>jetty-http3-server</artifactId>
+        <version>12.0.22</version>
+    </dependency>
 ```
 
 ## Examples
@@ -89,13 +123,11 @@ public class Main {
 import io.github.amayaframework.jetty.JettyFactory;
 import io.github.amayaframework.jetty.JettyServerFactory;
 import io.github.amayaframework.options.OptionSet;
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.session.SessionHandler;
 
 public class Main {
     public static void main(String[] args) throws Throwable {
-        var factory = new JettyServerFactory(new MyServerFactory());
+        var factory = new JettyServerFactory(v -> new Server());
         var server = factory.create();
         server.setHandler(ctx -> {
             var req = ctx.getRequest();
@@ -106,30 +138,12 @@ public class Main {
         server.start();
     }
 }
-
-final class MyServerFactory implements JettyFactory {
-
-    @Override
-    public Server create(Handler handler, OptionSet options) {
-        // Just ignore options for example
-        return create(handler);
-    }
-
-    @Override
-    public Server create(Handler handler) {
-        var ret = new Server();
-        var sessionHandler = new SessionHandler();
-        sessionHandler.setHandler(handler);
-        ret.setHandler(sessionHandler);
-        return ret;
-    }
-}
 ```
 
 ## Built With
 
 * [Gradle](https://gradle.org) - Dependency management
-* [Jetty 11](https://jetty.org/docs/jetty/11/index.html) - Http server implementation
+* [Jetty 12](https://jetty.org/docs/jetty/12/index.html) - Http server implementation
 * [jfunc](https://github.com/RomanQed/jfunc) - Basic functional interfaces
 * [amaya-context](https://github.com/AmayaFramework/amaya-core) - Universal http context api
 * [amaya-server](https://github.com/AmayaFramework/amaya-core) - Universal server api
