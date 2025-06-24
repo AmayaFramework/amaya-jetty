@@ -27,6 +27,8 @@ final class WrappedHttpRequest implements HttpServletRequest {
         return servletRequest.getAuthType();
     }
 
+    // Plain wrap methods
+
     @Override
     public Cookie[] getCookies() {
         return servletRequest.getCookies();
@@ -198,6 +200,7 @@ final class WrappedHttpRequest implements HttpServletRequest {
         return servletRequest.getCharacterEncoding();
     }
 
+    // Method updates also amaya request
     @Override
     public void setCharacterEncoding(String s) throws UnsupportedEncodingException {
         servletRequest.setCharacterEncoding(s);
