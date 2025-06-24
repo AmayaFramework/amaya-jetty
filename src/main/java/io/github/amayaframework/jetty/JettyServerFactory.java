@@ -2,6 +2,7 @@ package io.github.amayaframework.jetty;
 
 import io.github.amayaframework.environment.Environment;
 import io.github.amayaframework.http.HttpCode;
+import io.github.amayaframework.http.HttpMethod;
 import io.github.amayaframework.options.OptionSet;
 import io.github.amayaframework.options.Options;
 import io.github.amayaframework.server.HttpServer;
@@ -260,6 +261,17 @@ public class JettyServerFactory implements HttpServerFactory {
         return buffer;
     }
 
+    private static HttpMethodBuffer getMethodBuffer(OptionSet options) {
+        if (options == null) {
+            return HttpMethod::of;
+        }
+        var buffer = options.get(JettyOptions.HTTP_METHOD_BUFFER);
+        if (buffer == null) {
+            return HttpMethod::of;
+        }
+        return buffer;
+    }
+
     private HttpServer createHttpServer(OptionSet set, Path root, Environment env) {
         // Create jetty server
         var server = createJettyServer(set, env);
@@ -271,8 +283,9 @@ public class JettyServerFactory implements HttpServerFactory {
             processBindOptions(addresses, set);
         }
         // Prepare jetty handler
-        var buffer = getCodeBuffer(set);
-        var handler = new JettyHandlerImpl(buffer);
+        var codeBuffer = getCodeBuffer(set);
+        var methodBuffer = getMethodBuffer(set);
+        var handler = new JettyHandlerImpl(methodBuffer, codeBuffer);
         addHandler(server, handler, set, env);
         return new JettyHttpServer(server, addresses, config, handler);
     }
@@ -284,7 +297,7 @@ public class JettyServerFactory implements HttpServerFactory {
         var addresses = new AddressSet(server, root, Options.empty());
         var config = new JettyHttpConfig(addresses);
         // Prepare jetty handler
-        var handler = new JettyHandlerImpl(HttpCode::of);
+        var handler = new JettyHandlerImpl(HttpMethod::of, HttpCode::of);
         addHandler(server, handler, null, env);
         return new JettyHttpServer(server, addresses, config, handler);
     }
