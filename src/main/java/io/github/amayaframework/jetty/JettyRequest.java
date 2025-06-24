@@ -13,12 +13,18 @@ import java.nio.charset.Charset;
 import java.util.*;
 
 final class JettyRequest extends AbstractHttpRequest {
+    private final HttpMethodBuffer buffer;
     private final PathTokenizer tokenizer;
     private final MimeParser parser;
     private final Map<String, Object> pathParameters;
 
-    JettyRequest(HttpServletRequest request, HttpVersion version, PathTokenizer tokenizer, MimeParser parser) {
+    JettyRequest(HttpServletRequest request,
+                 HttpVersion version,
+                 HttpMethodBuffer buffer,
+                 PathTokenizer tokenizer,
+                 MimeParser parser) {
         super(request, version);
+        this.buffer = buffer;
         this.tokenizer = tokenizer;
         this.parser = parser;
         this.pathParameters = new HashMap<>();
@@ -35,7 +41,7 @@ final class JettyRequest extends AbstractHttpRequest {
 
     @Override
     protected HttpMethod parseHttpMethod(String s) {
-        return HttpMethod.of(s);
+        return buffer.get(s);
     }
 
     @Override
