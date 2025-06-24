@@ -9,6 +9,7 @@ public interface HttpMethodBuffer {
 
     /**
      * Gets an {@link HttpMethod} instance assigned with given string.
+     *
      * @param method the specified http method name
      * @return the {@link HttpMethod} instance if found, null otherwise
      */

@@ -112,6 +112,7 @@ public final class SSLConfig {
 
     /**
      * Returns the configurer of the {@link SslContextFactory}.
+     *
      * @return the configurer of the {@link SslContextFactory}
      */
     public Consumer<SslContextFactory> getConfigurer() {
