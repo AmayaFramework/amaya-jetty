@@ -68,11 +68,12 @@ final class JettyServlet implements Servlet {
         // Create amaya response
         var scheme = request.getScheme();
         var amayaResponse = new JettyResponse(response, rawVersion, scheme, version, formatter);
-        // Create wrapped servlet entities
-        var wrappedRequest = new WrappedHttpRequest(request, amayaRequest);
-        var wrappedResponse = new WrappedHttpResponse(response, amayaResponse, version, codeBuffer, parser);
         // Create context
-        var context = new JettyHttpContext(amayaRequest, amayaResponse, wrappedRequest, wrappedResponse);
+        var context = new JettyHttpContext(
+                amayaRequest, amayaResponse, // Amaya context
+                request, response, // Original context
+                version, codeBuffer, parser // Params for wrapped context
+        );
         // Run handler for context
         handler.run(context);
     }
