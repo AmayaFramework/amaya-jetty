@@ -35,7 +35,7 @@ final class WrappedHttpRequest implements HttpServletRequest {
         request.updateCharset(Charset.forName(s));
     }
 
-    // New servlet ee10 methods
+    // Plain wrap methods
 
     @Override
     public HttpServletMapping getHttpServletMapping() {
@@ -71,8 +71,6 @@ final class WrappedHttpRequest implements HttpServletRequest {
     public ServletConnection getServletConnection() {
         return servletRequest.getServletConnection();
     }
-
-    // Plain wrap methods
 
     @Override
     public Cookie[] getCookies() {
