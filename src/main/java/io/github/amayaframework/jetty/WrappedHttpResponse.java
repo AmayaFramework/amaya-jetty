@@ -131,19 +131,25 @@ final class WrappedHttpResponse implements HttpServletResponse {
         response.updateMimeData(data);
     }
 
-    // New servlet ee10 methods
+    // Methods with additional checks
 
     @Override
     public void setTrailerFields(Supplier<Map<String, String>> supplier) {
+        if (supplier == null) {
+            return;
+        }
+        if (version.before(HttpVersion.HTTP_1_1)) {
+            throw new IllegalStateException("Trailers not supported in " + version);
+        }
         servletResponse.setTrailerFields(supplier);
     }
+
+    // Plain wrap methods
 
     @Override
     public Supplier<Map<String, String>> getTrailerFields() {
         return servletResponse.getTrailerFields();
     }
-
-    // Plain wrap methods
 
     @Override
     public boolean containsHeader(String name) {
