@@ -1,4 +1,4 @@
-# amaya-jetty [![amaya-jetty](https://img.shields.io/maven-central/v/io.github.amayaframework/amaya-jetty/1.1.1-12?color=blue)](https://repo1.maven.org/maven2/io/github/amayaframework/amaya-jetty)
+# amaya-jetty [![amaya-jetty](https://img.shields.io/maven-central/v/io.github.amayaframework/amaya-jetty?color=blue)](https://repo1.maven.org/maven2/io/github/amayaframework/amaya-jetty)
 The amaya-server implementation is based on jetty-server.
 
 ## Getting Started
@@ -20,14 +20,14 @@ To install it, you will need:
 
 ```Groovy
 dependencies {
-    implementation group: 'io.github.amayaframework', name: 'amaya-jetty', version: '1.1.1-12'
+    implementation group: 'io.github.amayaframework', name: 'amaya-jetty', version: '2.0.0-12.0.24'
     // For alpn support (for ssl + http2, optionally)
-    implementation group: 'org.eclipse.jetty', name: 'jetty-alpn-server', version: '12.0.22'
-    implementation group: 'org.eclipse.jetty', name: 'jetty-alpn-java-server', version: '12.0.22'
+    implementation group: 'org.eclipse.jetty', name: 'jetty-alpn-server', version: '12.0.24'
+    implementation group: 'org.eclipse.jetty', name: 'jetty-alpn-java-server', version: '12.0.24'
     // For http2 support (optionally)
-    implementation group: 'org.eclipse.jetty.http2', name: 'jetty-http2-server', version: '12.0.22'
+    implementation group: 'org.eclipse.jetty.http2', name: 'jetty-http2-server', version: '12.0.24'
     // For http3 support (optionally)
-    implementation group: 'org.eclipse.jetty.http3', name: 'jetty-http3-server', version: '12.0.22'
+    implementation group: 'org.eclipse.jetty.http3', name: 'jetty-http3-server', version: '12.0.24'
 }
 ```
 
@@ -38,33 +38,33 @@ dependencies {
     <dependency>
         <groupId>io.github.amayaframework</groupId>
         <artifactId>amaya-jetty</artifactId>
-        <version>1.1.1-12</version>
+        <version>2.0.0-12.0.24</version>
     </dependency>
 
     <!-- For ALPN support (for SSL + HTTP/2, optionally) -->
     <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-alpn-server</artifactId>
-        <version>12.0.22</version>
+        <version>12.0.24</version>
     </dependency>
     <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-alpn-java-server</artifactId>
-        <version>12.0.22</version>
+        <version>12.0.24</version>
     </dependency>
 
     <!-- For HTTP/2 support (optionally) -->
     <dependency>
         <groupId>org.eclipse.jetty.http2</groupId>
         <artifactId>jetty-http2-server</artifactId>
-        <version>12.0.22</version>
+        <version>12.0.24</version>
     </dependency>
 
     <!-- For HTTP/3 support (optionally) -->
     <dependency>
         <groupId>org.eclipse.jetty.http3</groupId>
         <artifactId>jetty-http3-server</artifactId>
-        <version>12.0.22</version>
+        <version>12.0.24</version>
     </dependency>
 ```
 
@@ -79,9 +79,9 @@ public class Main {
     public static void main(String[] args) throws Throwable {
         var factory = new JettyServerFactory();
         var server = factory.create();
-        server.setHandler(ctx -> {
-            var req = ctx.getRequest();
-            var rsp = ctx.getResponse();
+        server.handler(ctx -> {
+            var req = ctx.request();
+            var rsp = ctx.response();
             rsp.getWriter().write("Hello, " + req.getQueryParameter("user"));
         });
         server.bind(8080);
@@ -106,9 +106,9 @@ public class Main {
             return ret;
         });
         var server = factory.create();
-        server.setHandler(ctx -> {
-            var req = ctx.getRequest();
-            var rsp = ctx.getResponse();
+        server.handler(ctx -> {
+            var req = ctx.request();
+            var rsp = ctx.response();
             rsp.getWriter().write("Hello, " + req.getQueryParameter("user"));
         });
         server.bind(8080);
@@ -129,9 +129,9 @@ public class Main {
     public static void main(String[] args) throws Throwable {
         var factory = new JettyServerFactory(v -> new Server());
         var server = factory.create();
-        server.setHandler(ctx -> {
-            var req = ctx.getRequest();
-            var rsp = ctx.getResponse();
+        server.handler(ctx -> {
+            var req = ctx.request();
+            var rsp = ctx.response();
             rsp.getWriter().write("Hello, " + req.getQueryParameter("user"));
         });
         server.bind(8080);
