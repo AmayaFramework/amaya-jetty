@@ -1,3 +1,29 @@
+/**
+ * The {@code amayaframework.jetty} module provides integration of the Amaya framework with
+ * the Jetty HTTP server.
+ * <p>
+ * This module contains implementations of the {@link io.github.amayaframework.server.HttpServer}
+ * interface using Jetty as the underlying HTTP container, including support for
+ * Jakarta Servlet API and modern Jetty features such as HTTP/2 and HTTP/3 (when available).
+ * </p>
+ *
+ * <p>
+ * The module depends on several utility libraries from the {@code com.github.romanqed} ecosystem
+ * for functional interfaces, asynchronous programming, cancellation tokens, and type utilities.
+ * It also relies on core Amaya framework modules for options, server abstractions, and service
+ * lifecycle management.
+ * </p>
+ *
+ * <p>
+ * Static dependencies on Jetty ALPN, HTTP/2, and HTTP/3 modules allow optional support for these
+ * protocols without forcing them at runtime.
+ * </p>
+ *
+ * <p>
+ * Typical usage involves creating and configuring a {@code JettyHttpServer} instance, binding
+ * addresses and handlers, and managing lifecycle through Amaya's service framework.
+ * </p>
+ */
 module amayaframework.jetty {
     // Imports
     // Basic dependencies
