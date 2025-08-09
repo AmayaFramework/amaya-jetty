@@ -34,6 +34,10 @@ final class JettyRequest extends AbstractHttpRequest {
         this.charset = charset;
     }
 
+    void updateHttpMethod(HttpMethod method) {
+        this.method = method;
+    }
+
     @Override
     protected Map<String, Cookie> collectCookies() {
         return Collections.unmodifiableMap(super.collectCookies());

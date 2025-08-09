@@ -1,11 +1,10 @@
-/**
- * Amaya server implementation based on jetty server.
- * @author Roman Bakaldin
- */
-module io.github.amayaframework.jetty {
+module amayaframework.jetty {
     // Imports
     // Basic dependencies
     requires com.github.romanqed.jfunc;
+    requires com.github.romanqed.jsync;
+    requires com.github.romanqed.juni;
+    requires com.github.romanqed.jct;
     requires com.github.romanqed.jtype;
     // Jakarta servlets
     requires jakarta.servlet;
@@ -17,11 +16,10 @@ module io.github.amayaframework.jetty {
     requires static org.eclipse.jetty.http2.server;
     requires static org.eclipse.jetty.http3.server;
     // Amaya dependencies
-    requires io.github.amayaframework.http;
-    requires io.github.amayaframework.options;
-    requires io.github.amayaframework.context;
-    requires io.github.amayaframework.server;
-    requires static io.github.amayaframework.environment;
+    requires amayaframework.options;
+    requires amayaframework.server;
+    requires amayaframework.service;
+    requires static amayaframework.environment;
     // Exports
     exports io.github.amayaframework.jetty;
 }

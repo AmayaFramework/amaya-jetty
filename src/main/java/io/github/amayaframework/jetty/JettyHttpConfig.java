@@ -34,17 +34,17 @@ final class JettyHttpConfig implements HttpServerConfig {
     }
 
     @Override
-    public ServletContext getServletContext() {
+    public ServletContext servletContext() {
         return context;
     }
 
     @Override
-    public HttpVersion getHttpVersion() {
+    public HttpVersion httpVersion() {
         return version;
     }
 
     @Override
-    public void setHttpVersion(HttpVersion version) {
+    public void httpVersion(HttpVersion version) {
         Objects.requireNonNull(version);
         if (version.before(HttpVersion.HTTP_1_0)) {
             throw new IllegalArgumentException("Only versions starting with HTTP/1.0 are supported");
@@ -65,37 +65,37 @@ final class JettyHttpConfig implements HttpServerConfig {
     }
 
     @Override
-    public MimeFormatter getMimeFormatter() {
+    public MimeFormatter mimeFormatter() {
         return formatter;
     }
 
     @Override
-    public void setMimeFormatter(MimeFormatter formatter) {
+    public void mimeFormatter(MimeFormatter formatter) {
         this.formatter = Objects.requireNonNull(formatter);
     }
 
     @Override
-    public MimeParser getMimeParser() {
+    public MimeParser mimeParser() {
         return parser;
     }
 
     @Override
-    public void setMimeParser(MimeParser parser) {
+    public void mimeParser(MimeParser parser) {
         this.parser = Objects.requireNonNull(parser);
     }
 
     @Override
-    public PathTokenizer getPathTokenizer() {
+    public PathTokenizer pathTokenizer() {
         return tokenizer;
     }
 
     @Override
-    public void setPathTokenizer(PathTokenizer tokenizer) {
+    public void pathTokenizer(PathTokenizer tokenizer) {
         this.tokenizer = Objects.requireNonNull(tokenizer);
     }
 
     @Override
-    public Set<InetSocketAddress> getAddresses() {
+    public Set<InetSocketAddress> addresses() {
         return addresses;
     }
 

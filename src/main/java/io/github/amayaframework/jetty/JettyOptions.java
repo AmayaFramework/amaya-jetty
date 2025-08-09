@@ -19,25 +19,11 @@ public final class JettyOptions {
     }
 
     /**
-     * The key for the listened port option.
-     * <br>
-     * Required type: {@link Integer}.
-     */
-    public static final Key<Integer> PORT = Key.of("port", Integer.class);
-
-    /**
      * The key for the listened ports option.
      * <br>
      * Required type: {@link Iterable} of {@link Integer}.
      */
     public static final Key<Iterable<Integer>> PORTS = Key.of("ports", new JType<>(){});
-
-    /**
-     * The key for the listened ip address option.
-     * <br>
-     * Required type: {@link InetSocketAddress}.
-     */
-    public static final Key<InetSocketAddress> IP = Key.of("ip", InetSocketAddress.class);
 
     /**
      * The key for the listened ip addresses option.
@@ -47,18 +33,18 @@ public final class JettyOptions {
     public static final Key<Iterable<InetSocketAddress>> IPS = Key.of("ips", new JType<>(){});
 
     /**
-     * The key for the http version option.
-     * <br>
-     * Required type: {@link HttpVersion}.
-     */
-    public static final Key<HttpVersion> HTTP_VERSION = Key.of("http_version", HttpVersion.class);
-
-    /**
      * The key for the flag determines whether the server will support http sessions.
      * <br>
      * Required type: {@link Boolean}.
      */
     public static final String ENABLE_SESSIONS = "enable_sessions";
+
+    /**
+     * The key for the flag determines whether the server will prefer async mode.
+     * <br>
+     * Required type: {@link Boolean}.
+     */
+    public static final Key<Boolean> PREFER_ASYNC = Key.of("prefer_async", Boolean.class);
 
     /**
      * The key for the http method buffer option.

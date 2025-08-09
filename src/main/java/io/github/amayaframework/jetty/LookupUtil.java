@@ -1,13 +1,13 @@
 package io.github.amayaframework.jetty;
 
-final class ReflectUtil {
+final class LookupUtil {
     // Http/2.0
     private static final String HTTP2_MODULE = "org.eclipse.jetty.http2.server";
     private static final String HTTP2_FACTORY = "org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory";
     // Http/3.0
     private static final String HTTP3_MODULE = "org.eclipse.jetty.http3.server";
     private static final String HTTP3_FACTORY = "org.eclipse.jetty.http3.server.HTTP3ServerConnectionFactory";
-    private ReflectUtil() {
+    private LookupUtil() {
     }
 
     static boolean isModuleLoaded(String name) {

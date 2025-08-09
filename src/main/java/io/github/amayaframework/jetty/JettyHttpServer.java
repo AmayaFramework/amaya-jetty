@@ -1,33 +1,45 @@
 package io.github.amayaframework.jetty;
 
-import com.github.romanqed.jfunc.Runnable1;
+import com.github.romanqed.jct.CancelToken;
+import com.github.romanqed.juni.UniRunnable1;
 import io.github.amayaframework.context.HttpContext;
 import io.github.amayaframework.http.HttpVersion;
 import io.github.amayaframework.server.HttpServer;
 import io.github.amayaframework.server.HttpServerConfig;
+import io.github.amayaframework.service.AbstractService;
+import io.github.amayaframework.service.ServiceCallback;
 import jakarta.servlet.ServletContext;
 import org.eclipse.jetty.server.Server;
 
 import java.net.InetSocketAddress;
 
-final class JettyHttpServer implements HttpServer {
+final class JettyHttpServer extends AbstractService implements HttpServer {
     private final Server server;
     private final AddressSet addresses;
     private final JettyHttpConfig config;
-    private final JettyServlet servlet;
+    private final HttpMethodBuffer methodBuffer;
+    private final HttpCodeBuffer codeBuffer;
+    private final boolean preferAsync;
+    private final HandledServlet servlet;
     private final ServletContext context;
-    private Runnable1<HttpContext> runnable;
+    private UniRunnable1<HttpContext> runnable;
 
     JettyHttpServer(Server server,
                     AddressSet addresses,
                     JettyHttpConfig config,
-                    JettyServlet servlet,
-                    ServletContext context) {
+                    ServletContext context,
+                    HttpMethodBuffer methodBuffer,
+                    HttpCodeBuffer codeBuffer,
+                    boolean preferAsync,
+                    HandledServlet servlet) {
         this.server = server;
         this.addresses = addresses;
         this.config = config;
-        this.servlet = servlet;
         this.context = context;
+        this.methodBuffer = methodBuffer;
+        this.codeBuffer = codeBuffer;
+        this.preferAsync = preferAsync;
+        this.servlet = servlet;
     }
 
     @Override
@@ -44,7 +56,7 @@ final class JettyHttpServer implements HttpServer {
     }
 
     @Override
-    public ServletContext getServletContext() {
+    public ServletContext servletContext() {
         return context;
     }
 
@@ -62,36 +74,87 @@ final class JettyHttpServer implements HttpServer {
     }
 
     @Override
-    public HttpServerConfig getConfig() {
+    public HttpServerConfig config() {
         return config;
     }
 
     @Override
-    public Runnable1<HttpContext> getHandler() {
+    public UniRunnable1<HttpContext> handler() {
         return runnable;
     }
 
     @Override
-    public void setHandler(Runnable1<HttpContext> handler) {
+    public void handler(UniRunnable1<HttpContext> handler) {
         this.runnable = handler;
     }
 
-    @Override
-    public void start() throws Throwable {
-        if (!server.isStopped()) {
-            throw new IllegalStateException("Cannot start not stopped server");
+    private ServletHandler createSyncHandler() {
+        return new SyncServletHandler(
+                methodBuffer,
+                codeBuffer,
+                config.version,
+                config.tokenizer,
+                config.parser,
+                config.formatter,
+                runnable
+        );
+    }
+
+    private ServletHandler createAsyncHandler() {
+        return new AsyncServletHandler(
+                methodBuffer,
+                codeBuffer,
+                config.version,
+                config.tokenizer,
+                config.parser,
+                config.formatter,
+                runnable
+        );
+    }
+
+    private ServletHandler createHandler() {
+        if (runnable == null) {
+            return (req, res) -> {};
         }
-        servlet.version = config.version;
-        servlet.tokenizer = config.tokenizer;
-        servlet.parser = config.parser;
-        servlet.formatter = config.formatter;
-        servlet.handler = runnable;
+        // 1. isSync() => run()
+        // 2. isAsync() => runAsync()
+        // 3. isUni() / unknown => preferAsync ? runAsync() : run()
+        if (runnable.isSync()) {
+            return createSyncHandler();
+        }
+        if (runnable.isAsync()) {
+            return createAsyncHandler();
+        }
+        return preferAsync ? createAsyncHandler() : createSyncHandler();
+    }
+
+    @Override
+    protected void doStart(CancelToken token, ServiceCallback callback) throws Throwable {
+        if (token.canceled()) {
+            return;
+        }
+        servlet.handler = createHandler();
         server.start();
     }
 
     @Override
-    public void stop() throws Throwable {
+    protected void doStop(CancelToken token) throws Throwable {
+        if (token.canceled()) {
+            return;
+        }
         server.stop();
-        server.join();
+        if (!token.canceled()) {
+            server.join();
+        }
+    }
+
+    @Override
+    protected void doDispose() {
+        try {
+            server.stop();
+            server.destroy();
+        } catch (Exception ignored) {
+            // No exceptions while disposing
+        }
     }
 }

@@ -27,10 +27,10 @@ public final class JettyProtocols {
      * for newer HTTP versions beyond HTTP/1.x.</p>
      */
     public static void load() {
-        if (ReflectUtil.isHttp2Loaded()) {
+        if (LookupUtil.isHttp2Loaded()) {
             FACTORIES.putIfAbsent(HttpVersion.HTTP_2_0, new Http2ConnectorFactory());
         }
-        if (ReflectUtil.isHttp3Loaded()) {
+        if (LookupUtil.isHttp3Loaded()) {
             FACTORIES.putIfAbsent(HttpVersion.HTTP_3_0, new Http3ConnectorFactory());
         }
     }

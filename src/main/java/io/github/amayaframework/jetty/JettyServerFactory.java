@@ -7,6 +7,7 @@ import io.github.amayaframework.options.OptionSet;
 import io.github.amayaframework.options.Options;
 import io.github.amayaframework.server.HttpServer;
 import io.github.amayaframework.server.HttpServerFactory;
+import io.github.amayaframework.server.ServerOptions;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.ee10.servlet.SessionHandler;
@@ -24,6 +25,7 @@ import java.util.function.Supplier;
  * Creates an implementations of {@link HttpServer} based on jetty {@link Server}.
  */
 public class JettyServerFactory implements HttpServerFactory {
+    private static final boolean PREFER_ASYNC = Runtime.version().feature() < 19;
 
     static {
         // Preload available connector factories
@@ -199,7 +201,7 @@ public class JettyServerFactory implements HttpServerFactory {
 
     private static void processBindOptions(Set<InetSocketAddress> set, OptionSet options) {
         // Add ports
-        var port = options.get(JettyOptions.PORT);
+        var port = options.get(ServerOptions.PORT);
         var ports = options.get(JettyOptions.PORTS);
         if (port != null) {
             set.add(new InetSocketAddress(port));
@@ -208,7 +210,7 @@ public class JettyServerFactory implements HttpServerFactory {
             ports.forEach(p -> set.add(new InetSocketAddress(p)));
         }
         // Add ips
-        var ip = options.get(JettyOptions.IP);
+        var ip = options.get(ServerOptions.IP);
         var ips = options.get(JettyOptions.IPS);
         if (ip != null) {
             set.add(ip);
@@ -219,11 +221,11 @@ public class JettyServerFactory implements HttpServerFactory {
     }
 
     private static void processHttpConfigOptions(JettyHttpConfig config, OptionSet options) {
-        var version = options.get(JettyOptions.HTTP_VERSION);
+        var version = options.get(ServerOptions.HTTP_VERSION);
         if (version == null) {
             return;
         }
-        config.setHttpVersion(version);
+        config.httpVersion(version);
     }
 
     private static HttpMethodBuffer getMethodBuffer(OptionSet options) {
@@ -272,6 +274,17 @@ public class JettyServerFactory implements HttpServerFactory {
         return ret;
     }
 
+    private static boolean decideAsync(OptionSet set) {
+        if (set == null) {
+            return PREFER_ASYNC;
+        }
+        var flag = set.get(JettyOptions.PREFER_ASYNC);
+        if (flag == null) {
+            return PREFER_ASYNC;
+        }
+        return flag;
+    }
+
     private HttpServer createHttpServer(OptionSet set, Path root, Environment env) {
         // Create jetty server
         var server = createJettyServer(set, env);
@@ -289,10 +302,18 @@ public class JettyServerFactory implements HttpServerFactory {
         // Prepare jetty servlet
         var methodBuffer = getMethodBuffer(set);
         var codeBuffer = getCodeBuffer(set);
-        var servlet = new JettyServlet(methodBuffer, codeBuffer);
+        var servlet = new HandledServlet();
         // Add jetty servlet to / path for generic path catch
         handler.addServlet(new ServletHolder(servlet), "/");
-        return new JettyHttpServer(server, addresses, config, servlet, context);
+        return new JettyHttpServer(server,
+                addresses,
+                config,
+                context,
+                methodBuffer,
+                codeBuffer,
+                decideAsync(set),
+                servlet
+        );
     }
 
     private HttpServer createHttpServer(Path root, Environment env) {
@@ -314,15 +335,24 @@ public class JettyServerFactory implements HttpServerFactory {
         var addresses = new AddressSet(server, root, Options.empty());
         var config = new JettyHttpConfig(addresses, context);
         // Prepare jetty servlet
-        var servlet = new JettyServlet(HttpMethod::of, HttpCode::of);
+        var servlet = new HandledServlet();
         // Add jetty servlet to / path for generic path catch
         handler.addServlet(new ServletHolder(servlet), "/");
-        return new JettyHttpServer(server, addresses, config, servlet, context);
+        return new JettyHttpServer(
+                server,
+                addresses,
+                config,
+                context,
+                HttpMethod::of,
+                HttpCode::of,
+                PREFER_ASYNC,
+                servlet
+        );
     }
 
     @Override
     public HttpServer create(OptionSet set, Environment env) {
-        var root = env == null ? getRoot() : env.getRoot();
+        var root = env == null ? getRoot() : env.root();
         return createHttpServer(set, root, env);
     }
 
@@ -334,7 +364,7 @@ public class JettyServerFactory implements HttpServerFactory {
 
     @Override
     public HttpServer create(Environment env) {
-        var root = env == null ? getRoot() : env.getRoot();
+        var root = env == null ? getRoot() : env.root();
         return createHttpServer(root, env);
     }
 

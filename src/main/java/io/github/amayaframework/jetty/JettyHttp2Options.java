@@ -20,6 +20,6 @@ public final class JettyHttp2Options {
      */
     public static final Key<Consumer<HTTP2ServerConnectionFactory>> HTTP2_CONFIGURER = Key.of(
             "http2_configurer",
-            new JType<>() {}
+            new JType<>(){}
     );
 }
