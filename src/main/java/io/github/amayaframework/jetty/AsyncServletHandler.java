@@ -26,7 +26,7 @@ final class AsyncServletHandler extends AbstractServletHandler {
     @Override
     public void handle(HttpServletRequest req, HttpServletResponse res) throws Throwable {
         var asyncCtx = req.startAsync();
-        var context = (HttpContext) null;
+        HttpContext context;
         try {
             context = buildContext(
                     (HttpServletRequest) asyncCtx.getRequest(),
