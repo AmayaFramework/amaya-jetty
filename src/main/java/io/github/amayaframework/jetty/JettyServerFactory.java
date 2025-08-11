@@ -13,6 +13,7 @@ import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.ee10.servlet.SessionHandler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.thread.ThreadPool;
+import org.eclipse.jetty.util.thread.VirtualThreadPool;
 
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
@@ -25,7 +26,8 @@ import java.util.function.Supplier;
  * Creates an implementations of {@link HttpServer} based on jetty {@link Server}.
  */
 public class JettyServerFactory implements HttpServerFactory {
-    private static final boolean PREFER_ASYNC = Runtime.version().feature() < 19;
+    private static final boolean JVM_21 = Runtime.version().feature() >= 21;
+    private static final boolean PREFER_ASYNC = !JVM_21;
 
     static {
         // Preload available connector factories
@@ -184,6 +186,9 @@ public class JettyServerFactory implements HttpServerFactory {
 
     private Server createJettyServer(OptionSet options, Environment env) {
         if (factory == null) {
+            if (JVM_21) {
+                return new Server(new VirtualThreadPool());
+            }
             return new Server();
         }
         if (env == null) {

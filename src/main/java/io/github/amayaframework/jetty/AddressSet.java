@@ -31,7 +31,7 @@ final class AddressSet implements Set<InetSocketAddress> {
         this.connectors = new HashMap<>();
     }
 
-    private Connector of(InetSocketAddress address, HttpVersion version) {
+    private Connector createConnector(InetSocketAddress address, HttpVersion version) {
         try {
             var factory = JettyProtocols.getConnectorFactory(version);
             return factory.create(server, address, root, options);
@@ -53,7 +53,7 @@ final class AddressSet implements Set<InetSocketAddress> {
         if (connectors.containsKey(address)) {
             return;
         }
-        var connector = of(address, version);
+        var connector = createConnector(address, version);
         server.addConnector(connector);
         connectors.put(address, connector);
     }
@@ -64,7 +64,7 @@ final class AddressSet implements Set<InetSocketAddress> {
         if (connectors.containsKey(address)) {
             return false;
         }
-        var connector = of(address, version);
+        var connector = createConnector(address, version);
         server.addConnector(connector);
         connectors.put(address, connector);
         return true;
