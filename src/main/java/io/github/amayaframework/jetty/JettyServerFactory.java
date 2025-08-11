@@ -310,7 +310,8 @@ public class JettyServerFactory implements HttpServerFactory {
         var servlet = new HandledServlet();
         // Add jetty servlet to / path for generic path catch
         handler.addServlet(new ServletHolder(servlet), "/");
-        return new JettyHttpServer(server,
+        return new JettyHttpServer(
+                server,
                 addresses,
                 config,
                 context,
@@ -363,8 +364,7 @@ public class JettyServerFactory implements HttpServerFactory {
 
     @Override
     public HttpServer create(OptionSet set) {
-        var root = getRoot();
-        return createHttpServer(set, root, null);
+        return createHttpServer(set, getRoot(), null);
     }
 
     @Override
@@ -375,7 +375,6 @@ public class JettyServerFactory implements HttpServerFactory {
 
     @Override
     public HttpServer create() {
-        var root = getRoot();
-        return createHttpServer(root, null);
+        return createHttpServer(getRoot(), null);
     }
 }
