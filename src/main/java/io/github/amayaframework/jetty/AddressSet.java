@@ -169,6 +169,11 @@ final class AddressSet implements Set<InetSocketAddress> {
     }
 
     @Override
+    public Spliterator<InetSocketAddress> spliterator() {
+        return keys.spliterator();
+    }
+
+    @Override
     public String toString() {
         return keys.toString();
     }
