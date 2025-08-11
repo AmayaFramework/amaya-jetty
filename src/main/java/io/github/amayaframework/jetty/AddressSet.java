@@ -1,5 +1,6 @@
 package io.github.amayaframework.jetty;
 
+import com.github.romanqed.jfunc.Exceptions;
 import io.github.amayaframework.http.HttpVersion;
 import io.github.amayaframework.options.OptionSet;
 import org.eclipse.jetty.server.Connector;
@@ -37,10 +38,10 @@ final class AddressSet implements Set<InetSocketAddress> {
         try {
             var factory = JettyProtocols.getConnectorFactory(version);
             return factory.create(server, address, root, options);
-        } catch (Error | RuntimeException e) {
-            throw e;
         } catch (Throwable e) {
-            throw new RuntimeException(e);
+            Exceptions.throwAny(e);
+            // Unreachable code to suppress javac error
+            return null;
         }
     }
 
