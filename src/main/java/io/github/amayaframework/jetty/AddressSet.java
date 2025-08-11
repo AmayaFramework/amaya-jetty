@@ -9,6 +9,7 @@ import org.eclipse.jetty.server.Server;
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Consumer;
 
 final class AddressSet implements Set<InetSocketAddress> {
     // Jetty server instance
@@ -19,8 +20,6 @@ final class AddressSet implements Set<InetSocketAddress> {
     private final OptionSet options;
     // Content map and it sets
     private final Map<InetSocketAddress, Connector> connectors;
-    private final Set<InetSocketAddress> keys;
-    private final Set<Map.Entry<InetSocketAddress, Connector>> entries;
 
     // Current http version
     HttpVersion version;
@@ -30,8 +29,6 @@ final class AddressSet implements Set<InetSocketAddress> {
         this.root = root;
         this.options = options;
         this.connectors = new HashMap<>();
-        this.keys = connectors.keySet();
-        this.entries = connectors.entrySet();
     }
 
     private Connector of(InetSocketAddress address, HttpVersion version) {
@@ -47,11 +44,11 @@ final class AddressSet implements Set<InetSocketAddress> {
 
     void add(InetSocketAddress address, HttpVersion version) {
         Objects.requireNonNull(address);
-        if (version.before(HttpVersion.HTTP_1_0)) {
-            throw new IllegalArgumentException("Only versions starting with HTTP/1.0 are supported");
+        if (version.before(HttpVersion.HTTP_1_1)) {
+            throw new IllegalArgumentException("Minimal allowed version is HTTP/1.1");
         }
         if (version.after(this.version)) {
-            throw new IllegalArgumentException("Maximum supported http version is " + this.version);
+            throw new IllegalArgumentException("Maximum allowed http version is " + this.version);
         }
         if (connectors.containsKey(address)) {
             return;
@@ -86,14 +83,8 @@ final class AddressSet implements Set<InetSocketAddress> {
     }
 
     @Override
-    @SuppressWarnings("SuspiciousMethodCalls")
     public boolean containsAll(Collection<?> c) {
-        for (var item : c) {
-            if (!connectors.containsKey(item)) {
-                return false;
-            }
-        }
-        return true;
+        return connectors.keySet().containsAll(c);
     }
 
     @Override
@@ -110,6 +101,7 @@ final class AddressSet implements Set<InetSocketAddress> {
     public boolean retainAll(Collection<?> c) {
         Objects.requireNonNull(c);
         var ret = false;
+        var keys = connectors.keySet();
         for (var address : keys) {
             if (!c.contains(address)) {
                 remove(address);
@@ -155,27 +147,32 @@ final class AddressSet implements Set<InetSocketAddress> {
 
     @Override
     public Object[] toArray() {
-        return keys.toArray();
+        return connectors.keySet().toArray();
     }
 
     @Override
     public <T> T[] toArray(T[] a) {
-        return keys.toArray(a);
+        return connectors.keySet().toArray(a);
     }
 
     @Override
     public Iterator<InetSocketAddress> iterator() {
-        return new AddressIterator(entries.iterator());
+        return new AddressIterator(connectors.entrySet().iterator());
     }
 
     @Override
     public Spliterator<InetSocketAddress> spliterator() {
-        return keys.spliterator();
+        return connectors.keySet().spliterator();
+    }
+
+    @Override
+    public void forEach(Consumer<? super InetSocketAddress> action) {
+        connectors.keySet().forEach(action);
     }
 
     @Override
     public String toString() {
-        return keys.toString();
+        return connectors.keySet().toString();
     }
 
     private final class AddressIterator implements Iterator<InetSocketAddress> {

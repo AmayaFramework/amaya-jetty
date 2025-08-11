@@ -9,11 +9,8 @@ import java.nio.file.Path;
 
 final class Http1ConnectorFactory implements ConnectorFactory {
 
-    private static ConnectionFactory[] createFactories(Path root,
-                                                       HttpConfiguration config,
-                                                       SSLConfig sslConfig,
-                                                       OptionSet options) {
-        var httpFactory = Util.createHttpConnectionFactory(config, options);
+    private static ConnectionFactory[] createFactories(Path root, HttpConfiguration config, SSLConfig sslConfig) {
+        var httpFactory = new HttpConnectionFactory(config);
         if (sslConfig == null) {
             return new ConnectionFactory[]{httpFactory};
         }
@@ -30,7 +27,7 @@ final class Http1ConnectorFactory implements ConnectorFactory {
         if (sslConfig != null) {
             Util.addSecure(config, address.getPort(), options);
         }
-        var factories = createFactories(root, config, sslConfig, options);
+        var factories = createFactories(root, config, sslConfig);
         return Util.createConnector(server, address, factories, options);
     }
 }

@@ -1,6 +1,5 @@
 package io.github.amayaframework.jetty;
 
-import com.github.romanqed.jetty.generator.StrictHttpConnectionFactory;
 import io.github.amayaframework.http.HttpVersion;
 import io.github.amayaframework.options.OptionSet;
 import org.eclipse.jetty.server.*;
@@ -29,14 +28,6 @@ final class Util {
             return null;
         }
         return map.get(address);
-    }
-
-    static StrictHttpConnectionFactory createHttpConnectionFactory(HttpConfiguration config, OptionSet options) {
-        var buffer = options.get(JettyOptions.HTTP_CODE_BUFFER);
-        if (buffer == null) {
-            return new StrictHttpConnectionFactory(config, null);
-        }
-        return new StrictHttpConnectionFactory(config, new MessageBufferImpl(buffer));
     }
 
     static SslContextFactory.Server createSslContextFactory(Path root, SSLConfig config) {

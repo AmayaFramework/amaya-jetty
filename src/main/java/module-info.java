@@ -35,7 +35,6 @@ module amayaframework.jetty {
     // Jakarta servlets
     requires jakarta.servlet;
     // Jetty dependencies
-    requires com.github.romanqed.jetty.generator;
     requires org.eclipse.jetty.server;
     requires org.eclipse.jetty.ee10.servlet;
     requires static org.eclipse.jetty.alpn.server;

@@ -21,7 +21,7 @@ final class Http2ConnectorFactory implements ConnectorFactory {
     }
 
     private static ConnectionFactory[] createH2C(HttpConfiguration config, OptionSet options) {
-        var http1Factory = Util.createHttpConnectionFactory(config, options);
+        var http1Factory = new HttpConnectionFactory(config);
         var http2Factory = new HTTP2CServerConnectionFactory(config);
         configure(http2Factory, options);
         // h1, h2
@@ -32,7 +32,7 @@ final class Http2ConnectorFactory implements ConnectorFactory {
                                                 HttpConfiguration httpConfig,
                                                 SSLConfig sslConfig,
                                                 OptionSet options) {
-        var http1Factory = Util.createHttpConnectionFactory(httpConfig, options);
+        var http1Factory = new HttpConnectionFactory(httpConfig);
         var http2Factory = new HTTP2ServerConnectionFactory(httpConfig);
         configure(http2Factory, options);
         var alpnFactory = new ALPNServerConnectionFactory();
