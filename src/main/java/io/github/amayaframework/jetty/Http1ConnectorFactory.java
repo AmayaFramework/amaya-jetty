@@ -23,7 +23,7 @@ final class Http1ConnectorFactory implements ConnectorFactory {
     public Connector create(Server server, InetSocketAddress address, Path root, OptionSet options) {
         var config = new HttpConfiguration();
         Util.configure(config, HttpVersion.HTTP_1_1, options);
-        var sslConfig = Util.getSslConfig(address, options);
+        var sslConfig = options.<SSLConfig>get(JettyOptions.sslStringKey(address));
         if (sslConfig != null) {
             Util.addSecure(config, address.getPort(), options);
         }

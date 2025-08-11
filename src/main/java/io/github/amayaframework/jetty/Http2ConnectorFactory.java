@@ -47,7 +47,7 @@ final class Http2ConnectorFactory implements ConnectorFactory {
     public Connector create(Server server, InetSocketAddress address, Path root, OptionSet options) {
         var config = new HttpConfiguration();
         Util.configure(config, HttpVersion.HTTP_2_0, options);
-        var sslConfig = Util.getSslConfig(address, options);
+        var sslConfig = options.<SSLConfig>get(JettyOptions.sslStringKey(address));
         var factories = (ConnectionFactory[]) null;
         if (sslConfig == null) {
             factories = createH2C(config, options);

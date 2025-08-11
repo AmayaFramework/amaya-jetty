@@ -22,14 +22,6 @@ final class Util {
         return path;
     }
 
-    static SSLConfig getSslConfig(InetSocketAddress address, OptionSet options) {
-        var map = options.get(JettyOptions.SSL_CONFIGS);
-        if (map == null) {
-            return null;
-        }
-        return map.get(address);
-    }
-
     static SslContextFactory.Server createSslContextFactory(Path root, SSLConfig config) {
         var ret = new SslContextFactory.Server();
         var path = resolve(root, config.getPath());

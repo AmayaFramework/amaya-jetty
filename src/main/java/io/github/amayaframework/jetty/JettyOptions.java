@@ -71,11 +71,11 @@ public final class JettyOptions {
     public static final Key<SSLConfig> SSL_CONFIG = Key.of("ssl", SSLConfig.class);
 
     /**
-     * The key for the ssl configs mapping option.
+     * The prefix for the key for the address bound ssl config.
      * <br>
      * Required type: {@link Map} of {@link InetSocketAddress} -&gt; {@link SSLConfig}.
      */
-    public static final Key<Map<InetSocketAddress, SSLConfig>> SSL_CONFIGS = Key.of("ssls", new JType<>(){});
+    public static final String SSL_CONFIG_PREFIX = "ssl.";
 
     /**
      * The key for the http configurer option.
@@ -110,4 +110,28 @@ public final class JettyOptions {
             "secure_configurer",
             new JType<>(){}
     );
+
+    public static String sslStringKey(InetSocketAddress address) {
+        return SSL_CONFIG_PREFIX + address.getHostString() + ":" + address.getPort();
+    }
+
+    public static String sslStringKey(String host, int port) {
+        return SSL_CONFIG_PREFIX + host + ":" + port;
+    }
+
+    public static String sslStringKey(int port) {
+        return SSL_CONFIG_PREFIX + "0.0.0.0:" + port;
+    }
+
+    public static Key<SSLConfig> sslKey(InetSocketAddress address) {
+        return Key.of(sslStringKey(address), SSLConfig.class);
+    }
+
+    public static Key<SSLConfig> sslKey(String host, int port) {
+        return Key.of(sslStringKey(host, port), SSLConfig.class);
+    }
+
+    public static Key<SSLConfig> sslKey(int port) {
+        return Key.of(sslStringKey(port), SSLConfig.class);
+    }
 }
