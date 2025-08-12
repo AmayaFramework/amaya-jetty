@@ -358,8 +358,7 @@ public class JettyServerFactory implements HttpServerFactory {
 
     @Override
     public HttpServer create(OptionSet set, Environment env) {
-        var root = env == null ? getRoot() : env.root();
-        return createHttpServer(set, root, env);
+        return createHttpServer(set, env == null ? getRoot() : env.root(), env);
     }
 
     @Override
@@ -369,8 +368,7 @@ public class JettyServerFactory implements HttpServerFactory {
 
     @Override
     public HttpServer create(Environment env) {
-        var root = env == null ? getRoot() : env.root();
-        return createHttpServer(root, env);
+        return createHttpServer(env == null ? getRoot() : env.root(), env);
     }
 
     @Override
