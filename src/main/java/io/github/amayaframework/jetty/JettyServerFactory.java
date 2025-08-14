@@ -207,7 +207,7 @@ public class JettyServerFactory implements HttpServerFactory {
     private static void processBindOptions(Set<InetSocketAddress> set, OptionSet options) {
         // Add ports
         var port = options.get(ServerOptions.PORT);
-        var ports = options.get(JettyOptions.PORTS);
+        var ports = options.get(ServerOptions.PORTS);
         if (port != null) {
             set.add(new InetSocketAddress(port));
         }
@@ -216,7 +216,7 @@ public class JettyServerFactory implements HttpServerFactory {
         }
         // Add ips
         var ip = options.get(ServerOptions.IP);
-        var ips = options.get(JettyOptions.IPS);
+        var ips = options.get(ServerOptions.IPS);
         if (ip != null) {
             set.add(ip);
         }
