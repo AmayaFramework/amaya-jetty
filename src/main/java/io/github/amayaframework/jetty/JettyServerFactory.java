@@ -270,6 +270,9 @@ public class JettyServerFactory implements HttpServerFactory {
             return;
         }
         if (options.asKey(JettyOptions.ENABLE_WEBSOCKET)) {
+            if (!LookupUtil.isWebsocketLoaded()) {
+                throw new IllegalArgumentException("Websocket is supported, but the required dependencies is not loaded");
+            }
             handler.addServletContainerInitializer(new JakartaWebSocketServletContainerInitializer());
         }
     }
