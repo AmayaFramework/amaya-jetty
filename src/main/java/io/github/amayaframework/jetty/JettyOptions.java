@@ -104,26 +104,66 @@ public final class JettyOptions {
             new JType<>(){}
     );
 
+    /**
+     * Creates an option key string for an {@link SSLConfig} bound to the specified network address.
+     *
+     * @param address the {@link InetSocketAddress} to bind the SSL configuration to
+     * @return a string key in the format {@code ssl.<host>:<port>}
+     */
     public static String sslStringKey(InetSocketAddress address) {
         return SSL_CONFIG_PREFIX + address.getHostString() + ":" + address.getPort();
     }
 
+    /**
+     * Creates an option key string for an {@link SSLConfig} bound to the specified host and port.
+     *
+     * @param host the hostname to bind the SSL configuration to
+     * @param port the port number to bind the SSL configuration to
+     * @return a string key in the format {@code ssl.<host>:<port>}
+     */
     public static String sslStringKey(String host, int port) {
         return SSL_CONFIG_PREFIX + host + ":" + port;
     }
 
+    /**
+     * Creates an option key string for an {@link SSLConfig} bound to all network interfaces
+     * on the specified port.
+     *
+     * @param port the port number to bind the SSL configuration to
+     * @return a string key in the format {@code ssl.0.0.0.0:<port>}
+     */
     public static String sslStringKey(int port) {
         return SSL_CONFIG_PREFIX + "0.0.0.0:" + port;
     }
 
+    /**
+     * Creates a {@link Key} instance for an {@link SSLConfig} bound to the specified network address.
+     *
+     * @param address the {@link InetSocketAddress} to bind the SSL configuration to
+     * @return a {@link Key} referencing an {@link SSLConfig} for the given address
+     */
     public static Key<SSLConfig> sslKey(InetSocketAddress address) {
         return Key.of(sslStringKey(address), SSLConfig.class);
     }
 
+    /**
+     * Creates a {@link Key} instance for an {@link SSLConfig} bound to the specified host and port.
+     *
+     * @param host the hostname to bind the SSL configuration to
+     * @param port the port number to bind the SSL configuration to
+     * @return a {@link Key} referencing an {@link SSLConfig} for the given host and port
+     */
     public static Key<SSLConfig> sslKey(String host, int port) {
         return Key.of(sslStringKey(host, port), SSLConfig.class);
     }
 
+    /**
+     * Creates a {@link Key} instance for an {@link SSLConfig} bound to all network interfaces
+     * on the specified port.
+     *
+     * @param port the port number to bind the SSL configuration to
+     * @return a {@link Key} referencing an {@link SSLConfig} for all interfaces on the given port
+     */
     public static Key<SSLConfig> sslKey(int port) {
         return Key.of(sslStringKey(port), SSLConfig.class);
     }
