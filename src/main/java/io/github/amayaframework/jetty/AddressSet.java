@@ -71,13 +71,11 @@ final class AddressSet implements Set<InetSocketAddress> {
     }
 
     @Override
-    @SuppressWarnings("SuspiciousMethodCalls")
     public boolean remove(Object o) {
-        Objects.requireNonNull(o);
-        if (!connectors.containsKey(o)) {
+        var connector = connectors.remove(o);
+        if (connector == null) {
             return false;
         }
-        var connector = connectors.remove(o);
         server.removeConnector(connector);
         return true;
     }
@@ -100,11 +98,14 @@ final class AddressSet implements Set<InetSocketAddress> {
     @Override
     public boolean retainAll(Collection<?> c) {
         Objects.requireNonNull(c);
-        var ret = false;
-        var keys = connectors.keySet();
-        for (var address : keys) {
+        boolean ret = false;
+        var iterator = connectors.entrySet().iterator();
+        while (iterator.hasNext()) {
+            var entry = iterator.next();
+            var address = entry.getKey();
             if (!c.contains(address)) {
-                remove(address);
+                iterator.remove();
+                server.removeConnector(entry.getValue());
                 ret = true;
             }
         }
@@ -200,9 +201,10 @@ final class AddressSet implements Set<InetSocketAddress> {
             if (current == null) {
                 throw new IllegalStateException();
             }
-            server.removeConnector(current.getValue());
+            var connector = current.getValue();
             iterator.remove();
             current = null;
+            server.removeConnector(connector);
         }
     }
 }
