@@ -44,8 +44,8 @@ final class HandledServlet implements Servlet {
             if (onDestroy != null) {
                 onDestroy.run();
             }
-        } catch (Throwable ignored) {
-            // No exceptions on destroy()
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
         }
     }
 
