@@ -1,5 +1,7 @@
 package io.github.amayaframework.jetty;
 
+import com.github.romanqed.jfunc.Runnable0;
+import com.github.romanqed.jfunc.Runnable1;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,10 +11,21 @@ import java.io.IOException;
 final class HandledServlet implements Servlet {
     private ServletConfig config;
     ServletHandler handler;
+    Runnable1<ServletConfig> onInit;
+    Runnable0 onDestroy;
 
     @Override
-    public void init(ServletConfig config) {
+    public void init(ServletConfig config) throws ServletException {
         this.config = config;
+        try {
+            if (onInit != null) {
+                onInit.run(config);
+            }
+        } catch (Error | RuntimeException | ServletException e) {
+            throw e;
+        } catch (Throwable e) {
+            throw new ServletException("Failed to initialize amaya servlet", e);
+        }
     }
 
     @Override
@@ -27,7 +40,13 @@ final class HandledServlet implements Servlet {
 
     @Override
     public void destroy() {
-        // Do nothing
+        try {
+            if (onDestroy != null) {
+                onDestroy.run();
+            }
+        } catch (Throwable ignored) {
+            // No exceptions on destroy()
+        }
     }
 
     @Override

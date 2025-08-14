@@ -45,6 +45,7 @@ module amayaframework.jetty {
     requires amayaframework.server;
     requires amayaframework.service;
     requires static amayaframework.environment;
+    requires org.eclipse.jetty.ee10.websocket.jakarta.server;
     // Exports
     exports io.github.amayaframework.jetty;
 }

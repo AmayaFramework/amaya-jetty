@@ -134,6 +134,8 @@ final class JettyHttpServer extends AbstractService implements HttpServer {
             return;
         }
         servlet.handler = createHandler();
+        servlet.onInit = config.onInit;
+        servlet.onDestroy = config.onDestroy;
         server.start();
     }
 

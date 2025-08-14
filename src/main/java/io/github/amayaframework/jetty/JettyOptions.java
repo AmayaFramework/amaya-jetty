@@ -19,20 +19,6 @@ public final class JettyOptions {
     }
 
     /**
-     * The key for the listened ports option.
-     * <br>
-     * Required type: {@link Iterable} of {@link Integer}.
-     */
-    public static final Key<Iterable<Integer>> PORTS = Key.of("ports", new JType<>(){});
-
-    /**
-     * The key for the listened ip addresses option.
-     * <br>
-     * Required type: {@link Iterable} of {@link InetSocketAddress}.
-     */
-    public static final Key<Iterable<InetSocketAddress>> IPS = Key.of("ips", new JType<>(){});
-
-    /**
      * The key for the flag determines whether the server will support http sessions.
      * <br>
      * Required type: {@link Boolean}.
