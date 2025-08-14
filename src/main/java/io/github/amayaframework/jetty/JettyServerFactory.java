@@ -11,6 +11,7 @@ import io.github.amayaframework.server.ServerOptions;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.ee10.servlet.SessionHandler;
+import org.eclipse.jetty.ee10.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.eclipse.jetty.util.thread.VirtualThreadPool;
@@ -255,7 +256,7 @@ public class JettyServerFactory implements HttpServerFactory {
         return buffer;
     }
 
-    private void processSessionsOption(ServletContextHandler handler, OptionSet options) {
+    private static void processSessionsOption(ServletContextHandler handler, OptionSet options) {
         if (options == null) {
             return;
         }
@@ -264,9 +265,19 @@ public class JettyServerFactory implements HttpServerFactory {
         }
     }
 
+    private static void processWebsocketOption(ServletContextHandler handler, OptionSet options) {
+        if (options == null) {
+            return;
+        }
+        if (options.asKey(JettyOptions.ENABLE_WEBSOCKET)) {
+            handler.addServletContainerInitializer(new JakartaWebSocketServletContainerInitializer());
+        }
+    }
+
     private ServletContextHandler createHandler(Server server, OptionSet options, Environment env) {
         var ret = new ServletContextHandler();
         processSessionsOption(ret, options);
+        processWebsocketOption(ret, options);
         server.setHandler(ret);
         if (configurer == null) {
             return ret;

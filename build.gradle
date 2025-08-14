@@ -24,6 +24,8 @@ repositories {
 }
 
 dependencies {
+    // TODO REMOVE
+    implementation group: 'io.github.amayaframework', name: 'amaya-core', version: '3.1.0'
     // Tests
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.10.0'
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.10.0'

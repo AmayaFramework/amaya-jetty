@@ -26,6 +26,13 @@ public final class JettyOptions {
     public static final String ENABLE_SESSIONS = "enable_sessions";
 
     /**
+     * The key for the flag determines whether the server will support websocket protocol.
+     * <br>
+     * Required type: {@link Boolean}.
+     */
+    public static final String ENABLE_WEBSOCKET = "enable_ws";
+
+    /**
      * The key for the flag determines whether the server will prefer async mode.
      * <br>
      * Required type: {@link Boolean}.
