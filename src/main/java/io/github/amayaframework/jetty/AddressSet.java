@@ -169,6 +169,25 @@ final class AddressSet implements Set<InetSocketAddress> {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (o instanceof AddressSet) {
+            return connectors.keySet().equals(((AddressSet) o).connectors.keySet());
+        }
+        if (!(o instanceof Set)) {
+            return false;
+        }
+        return connectors.keySet().equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return connectors.keySet().hashCode();
+    }
+
+    @Override
     public String toString() {
         return connectors.keySet().toString();
     }
