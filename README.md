@@ -88,38 +88,11 @@ public class Main {
     public static void main(String[] args) throws Throwable {
         var factory = new JettyServerFactory();
         var server = factory.create();
-        server.handler(ctx -> {
+        server.handler(UniRunnable1.of(ctx -> {
             var req = ctx.request();
             var rsp = ctx.response();
             rsp.getWriter().write("Hello, " + req.getQueryParameter("user"));
-        });
-        server.bind(8080);
-        server.start();
-    }
-}
-```
-
-### Custom thread pool (virtual threads)
-
-```Java
-import io.github.amayaframework.jetty.JettyServerFactory;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
-
-import java.util.concurrent.Executors;
-
-public class Main {
-    public static void main(String[] args) throws Throwable {
-        var factory = new JettyServerFactory(() -> {
-            var ret = new QueuedThreadPool();
-            ret.setVirtualThreadsExecutor(Executors.newVirtualThreadPerTaskExecutor());
-            return ret;
-        });
-        var server = factory.create();
-        server.handler(ctx -> {
-            var req = ctx.request();
-            var rsp = ctx.response();
-            rsp.getWriter().write("Hello, " + req.getQueryParameter("user"));
-        });
+        }));
         server.bind(8080);
         server.start();
     }
@@ -138,11 +111,11 @@ public class Main {
     public static void main(String[] args) throws Throwable {
         var factory = new JettyServerFactory(v -> new Server());
         var server = factory.create();
-        server.handler(ctx -> {
+        server.handler(UniRunnable1.of(ctx -> {
             var req = ctx.request();
             var rsp = ctx.response();
             rsp.getWriter().write("Hello, " + req.getQueryParameter("user"));
-        });
+        }));
         server.bind(8080);
         server.start();
     }
