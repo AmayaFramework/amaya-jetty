@@ -59,6 +59,7 @@ final class Util {
     }
 
     static void configure(HttpConfiguration config, HttpVersion version, OptionSet options) {
+        config.setSendServerVersion(options.asKey(JettyOptions.SEND_SERVER));
         var configurer = options.get(JettyOptions.HTTP_CONFIGURER);
         if (configurer == null) {
             return;

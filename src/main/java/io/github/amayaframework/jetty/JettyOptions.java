@@ -19,6 +19,19 @@ public final class JettyOptions {
     }
 
     /**
+     * The key for the flag that controls whether the Jetty server includes the
+     * {@code Server} HTTP response header (e.g. {@code "Jetty(12.0.10)"}).
+     *
+     * <p>When enabled, Jetty will add its version information in the
+     * {@code Server} header of responses. Disabling this option suppresses
+     * the header, which is often desirable for security hardening or to
+     * reduce unnecessary information disclosure.
+     *
+     * <p>Required type: {@link Boolean}.
+     */
+    public static final String SEND_SERVER = "send_server";
+
+    /**
      * The key for the flag determines whether the server will support http sessions.
      * <br>
      * Required type: {@link Boolean}.
