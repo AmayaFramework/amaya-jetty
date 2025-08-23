@@ -91,7 +91,7 @@ public class Main {
         server.handler(UniRunnable1.of(ctx -> {
             var req = ctx.request();
             var rsp = ctx.response();
-            rsp.writer().write("Hello, " + req.getQueryParameter("user"));
+            rsp.writer().write("Hello, " + req.queryParam("user"));
         }));
         server.bind(8080);
         server.start();
@@ -114,7 +114,7 @@ public class Main {
         server.handler(UniRunnable1.of(ctx -> {
             var req = ctx.request();
             var rsp = ctx.response();
-            rsp.writer().write("Hello, " + req.getQueryParameter("user"));
+            rsp.writer().write("Hello, " + req.queryParam("user"));
         }));
         server.bind(8080);
         server.start();
