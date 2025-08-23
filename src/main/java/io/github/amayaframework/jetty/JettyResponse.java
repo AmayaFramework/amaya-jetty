@@ -5,40 +5,39 @@ import io.github.amayaframework.http.HttpCode;
 import io.github.amayaframework.http.HttpVersion;
 import io.github.amayaframework.http.MimeData;
 import io.github.amayaframework.server.MimeFormatter;
+import io.github.amayaframework.server.MimeParser;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.nio.charset.Charset;
-
 final class JettyResponse extends AbstractHttpResponse {
+    private final MimeParser parser;
     private final MimeFormatter formatter;
+    private final HttpCodeBuffer codeBuffer;
 
     JettyResponse(HttpServletResponse response,
-                  String protocol,
-                  String scheme,
+                  MimeParser parser,
+                  MimeFormatter formatter,
+                  HttpCodeBuffer codeBuffer,
                   HttpVersion version,
-                  MimeFormatter formatter) {
-        super(response, protocol, scheme, version);
+                  String protocol,
+                  String scheme) {
+        super(response, version, protocol, scheme);
+        this.parser = parser;
         this.formatter = formatter;
-    }
-
-    void updateStatus(HttpCode code) {
-        this.status = code;
-    }
-
-    void updateCharset(Charset charset) {
-        this.charset = charset;
-    }
-
-    void updateContentLength(long length) {
-        this.length = length;
-    }
-
-    void updateMimeData(MimeData data) {
-        this.data = data;
+        this.codeBuffer = codeBuffer;
     }
 
     @Override
-    protected String formatMimeData(MimeData mimeData) {
-        return formatter.format(mimeData);
+    protected HttpCode parseHttpCode(int code) {
+        return codeBuffer.get(code);
+    }
+
+    @Override
+    protected MimeData parseMimeData(String data) {
+        return parser.read(data);
+    }
+
+    @Override
+    protected String formatMimeData(MimeData data) {
+        return formatter.format(data);
     }
 }

@@ -6,10 +6,8 @@ import io.github.amayaframework.http.HttpVersion;
 import io.github.amayaframework.http.MimeData;
 import io.github.amayaframework.server.MimeParser;
 import io.github.amayaframework.server.PathTokenizer;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
-import java.nio.charset.Charset;
 import java.util.*;
 
 final class JettyRequest extends AbstractHttpRequest {
@@ -30,17 +28,8 @@ final class JettyRequest extends AbstractHttpRequest {
         this.pathParameters = new HashMap<>();
     }
 
-    void updateCharset(Charset charset) {
-        this.charset = charset;
-    }
-
     void updateHttpMethod(HttpMethod method) {
         this.method = method;
-    }
-
-    @Override
-    protected Map<String, Cookie> collectCookies() {
-        return Collections.unmodifiableMap(super.collectCookies());
     }
 
     @Override
@@ -85,13 +74,13 @@ final class JettyRequest extends AbstractHttpRequest {
     }
 
     @Override
-    public Map<String, Object> getPathParameters() {
+    public Map<String, Object> pathParams() {
         return pathParameters;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T getPathParameter(String s) {
+    public <T> T pathParam(String s) {
         return (T) pathParameters.get(s);
     }
 }

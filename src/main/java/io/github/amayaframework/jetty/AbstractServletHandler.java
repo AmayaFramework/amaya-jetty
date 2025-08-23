@@ -57,12 +57,8 @@ abstract class AbstractServletHandler implements ServletHandler {
         amayaRequest.updateHttpMethod(method);
         // Create amaya response
         var scheme = req.getScheme();
-        var amayaResponse = new JettyResponse(res, rawVersion, scheme, version, formatter);
+        var amayaResponse = new JettyResponse(res, parser, formatter, codeBuffer, version, rawVersion, scheme);
         // Create context
-        return new JettyHttpContext(
-                req, res, // Original context
-                amayaRequest, amayaResponse, // Amaya context
-                version, codeBuffer, parser // Params for wrapped context
-        );
+        return new JettyHttpContext(req, res, amayaRequest, amayaResponse);
     }
 }
