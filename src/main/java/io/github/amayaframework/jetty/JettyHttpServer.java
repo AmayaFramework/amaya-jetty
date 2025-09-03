@@ -4,6 +4,8 @@ import com.github.romanqed.jct.CancelToken;
 import com.github.romanqed.juni.UniRunnable1;
 import io.github.amayaframework.context.HttpContext;
 import io.github.amayaframework.http.HttpVersion;
+import io.github.amayaframework.server.HttpCodeBuffer;
+import io.github.amayaframework.server.HttpMethodBuffer;
 import io.github.amayaframework.server.HttpServer;
 import io.github.amayaframework.server.HttpServerConfig;
 import io.github.amayaframework.service.AbstractService;

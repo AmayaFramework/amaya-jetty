@@ -2,6 +2,7 @@ package io.github.amayaframework.jetty;
 
 import io.github.amayaframework.http.HttpVersion;
 import io.github.amayaframework.options.OptionSet;
+import io.github.amayaframework.server.ServerOptions;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
@@ -59,7 +60,8 @@ final class Util {
     }
 
     static void configure(HttpConfiguration config, HttpVersion version, OptionSet options) {
-        config.setSendServerVersion(options.asKey(JettyOptions.SEND_SERVER));
+        config.setSendServerVersion(options.asKey(ServerOptions.SEND_SERVER));
+        config.setSendXPoweredBy(options.asKey(ServerOptions.SEND_POWERED_BY));
         var configurer = options.get(JettyOptions.HTTP_CONFIGURER);
         if (configurer == null) {
             return;

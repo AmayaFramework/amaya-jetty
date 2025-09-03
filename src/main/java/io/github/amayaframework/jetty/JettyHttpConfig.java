@@ -14,7 +14,7 @@ import java.util.Set;
 final class JettyHttpConfig implements HttpServerConfig {
     private static final MimeFormatter DEFAULT_FORMATTER = new StandardMimeFormatter();
     private static final MimeParser DEFAULT_PARSER = new StandardMimeParser();
-    private static final PathTokenizer DEFAULT_TOKENIZER = new JettyPathTokenizer();
+    private static final PathTokenizer DEFAULT_TOKENIZER = new SplitPathTokenizer();
 
     final AddressSet addresses;
     final ServletContext context;

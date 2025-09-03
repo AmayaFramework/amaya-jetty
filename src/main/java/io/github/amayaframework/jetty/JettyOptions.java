@@ -19,19 +19,6 @@ public final class JettyOptions {
     }
 
     /**
-     * The key for the flag that controls whether the Jetty server includes the
-     * {@code Server} HTTP response header (e.g. {@code "Jetty(12.0.10)"}).
-     *
-     * <p>When enabled, Jetty will add its version information in the
-     * {@code Server} header of responses. Disabling this option suppresses
-     * the header, which is often desirable for security hardening or to
-     * reduce unnecessary information disclosure.
-     *
-     * <p>Required type: {@link Boolean}.
-     */
-    public static final String SEND_SERVER = "send_server";
-
-    /**
      * The key for the flag determines whether the server will support http sessions.
      * <br>
      * Required type: {@link Boolean}.
@@ -44,30 +31,6 @@ public final class JettyOptions {
      * Required type: {@link Boolean}.
      */
     public static final String ENABLE_WEBSOCKET = "enable_ws";
-
-    /**
-     * The key for the flag determines whether the server will prefer async mode.
-     * <br>
-     * Required type: {@link Boolean}.
-     */
-    public static final Key<Boolean> PREFER_ASYNC = Key.of("prefer_async", Boolean.class);
-
-    /**
-     * The key for the http method buffer option.
-     * <br>
-     * Required type: {@link HttpMethodBuffer}
-     */
-    public static final Key<HttpMethodBuffer> HTTP_METHOD_BUFFER = Key.of(
-            "http_method_buffer",
-            HttpMethodBuffer.class
-    );
-
-    /**
-     * The key for the http code buffer option.
-     * <br>
-     * Required type: {@link HttpCodeBuffer}.
-     */
-    public static final Key<HttpCodeBuffer> HTTP_CODE_BUFFER = Key.of("http_code_buffer", HttpCodeBuffer.class);
 
     /**
      * The key for the common ssl config option.

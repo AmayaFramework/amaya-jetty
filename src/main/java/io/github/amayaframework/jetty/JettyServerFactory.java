@@ -5,14 +5,13 @@ import io.github.amayaframework.http.HttpCode;
 import io.github.amayaframework.http.HttpMethod;
 import io.github.amayaframework.options.OptionSet;
 import io.github.amayaframework.options.Options;
-import io.github.amayaframework.server.HttpServer;
-import io.github.amayaframework.server.HttpServerFactory;
-import io.github.amayaframework.server.ServerOptions;
+import io.github.amayaframework.server.*;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.ee10.servlet.SessionHandler;
 import org.eclipse.jetty.ee10.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.util.VirtualThreads;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.eclipse.jetty.util.thread.VirtualThreadPool;
 
@@ -27,8 +26,8 @@ import java.util.function.Supplier;
  * Creates an implementations of {@link HttpServer} based on jetty {@link Server}.
  */
 public class JettyServerFactory implements HttpServerFactory {
-    private static final boolean JVM_21 = Runtime.version().feature() >= 21;
-    private static final boolean PREFER_ASYNC = !JVM_21;
+    private static final boolean VIRTUAL_THREADS = VirtualThreads.areSupported();
+    private static final boolean PREFER_ASYNC = !VIRTUAL_THREADS;
 
     static {
         // Preload available connector factories
@@ -187,7 +186,7 @@ public class JettyServerFactory implements HttpServerFactory {
 
     private Server createJettyServer(OptionSet options, Environment env) {
         if (factory == null) {
-            if (JVM_21) {
+            if (VIRTUAL_THREADS) {
                 return new Server(new VirtualThreadPool());
             }
             return new Server();
@@ -238,7 +237,7 @@ public class JettyServerFactory implements HttpServerFactory {
         if (options == null) {
             return HttpMethod::of;
         }
-        var buffer = options.get(JettyOptions.HTTP_METHOD_BUFFER);
+        var buffer = options.get(ServerOptions.HTTP_METHOD_BUFFER);
         if (buffer == null) {
             return HttpMethod::of;
         }
@@ -249,7 +248,7 @@ public class JettyServerFactory implements HttpServerFactory {
         if (options == null) {
             return HttpCode::of;
         }
-        var buffer = options.get(JettyOptions.HTTP_CODE_BUFFER);
+        var buffer = options.get(ServerOptions.HTTP_CODE_BUFFER);
         if (buffer == null) {
             return HttpCode::of;
         }
@@ -297,7 +296,7 @@ public class JettyServerFactory implements HttpServerFactory {
         if (set == null) {
             return PREFER_ASYNC;
         }
-        var flag = set.get(JettyOptions.PREFER_ASYNC);
+        var flag = set.get(ServerOptions.PREFER_ASYNC);
         if (flag == null) {
             return PREFER_ASYNC;
         }
