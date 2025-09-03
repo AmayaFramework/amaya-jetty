@@ -16,4 +16,9 @@ final class JettyRequest extends ServerHttpRequest {
         super(request, version, null, tokenizer, parser);
         this.method = method;
     }
+
+    @Override
+    public HttpMethod method() {
+        return method;
+    }
 }
