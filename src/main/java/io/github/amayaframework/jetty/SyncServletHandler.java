@@ -13,11 +13,12 @@ final class SyncServletHandler extends AbstractServletHandler {
     SyncServletHandler(HttpMethodBuffer methodBuffer,
                        HttpCodeBuffer codeBuffer,
                        HttpVersion version,
+                       HttpErrorHandler errorHandler,
                        PathTokenizer tokenizer,
                        MimeParser parser,
                        MimeFormatter formatter,
                        Runnable1<HttpContext> handler) {
-        super(methodBuffer, codeBuffer, version, tokenizer, parser, formatter);
+        super(methodBuffer, codeBuffer, version, errorHandler, tokenizer, parser, formatter);
         this.handler = handler;
     }
 
