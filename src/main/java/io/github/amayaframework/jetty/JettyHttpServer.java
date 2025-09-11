@@ -120,9 +120,13 @@ final class JettyHttpServer extends AbstractService implements HttpServer {
         if (runnable == null) {
             return (req, res) -> {};
         }
-        // 1. isSync() => run()
-        // 2. isAsync() => runAsync()
-        // 3. isUni() / unknown => preferAsync ? runAsync() : run()
+        // 1. isUni() => preferAsync ? runAsync() : run()
+        // 2. isSync() => run()
+        // 3. isAsync() => runAsync()
+        // 4. unknown (mixed) => preferAsync ? runAsync() : run()
+        if (runnable.isUni()) {
+            return preferAsync ? createAsyncHandler() : createSyncHandler();
+        }
         if (runnable.isSync()) {
             return createSyncHandler();
         }
