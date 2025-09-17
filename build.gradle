@@ -15,7 +15,7 @@ java {
     withSourcesJar()
 }
 
-def jettyVersion = '12.0.26'
+def jettyVersion = '12.1.1'
 
 group = 'io.github.amayaframework'
 archivesBaseName = 'amaya-jetty'
@@ -48,6 +48,7 @@ dependencies {
     compileOnly group: 'org.eclipse.jetty', name: 'jetty-alpn-server', version: jettyVersion
     compileOnly group: 'org.eclipse.jetty.http2', name: 'jetty-http2-server', version: jettyVersion
     compileOnly group: 'org.eclipse.jetty.http3', name: 'jetty-http3-server', version: jettyVersion
+    compileOnly group: 'org.eclipse.jetty.quic', name: 'jetty-quic-quiche-server', version: jettyVersion
     // Websocket impl
     compileOnly group: 'org.eclipse.jetty.ee10.websocket', name: 'jetty-ee10-websocket-jakarta-server', version: jettyVersion
 }

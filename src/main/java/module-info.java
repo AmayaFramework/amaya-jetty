@@ -40,6 +40,7 @@ module amayaframework.jetty {
     requires static org.eclipse.jetty.alpn.server;
     requires static org.eclipse.jetty.http2.server;
     requires static org.eclipse.jetty.http3.server;
+    requires static org.eclipse.jetty.quic.quiche.server;
     requires static org.eclipse.jetty.ee10.websocket.jakarta.server;
     // Amaya dependencies
     requires amayaframework.options;

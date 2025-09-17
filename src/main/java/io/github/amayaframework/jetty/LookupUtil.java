@@ -7,6 +7,8 @@ final class LookupUtil {
     // Http/3.0
     private static final String HTTP3_MODULE = "org.eclipse.jetty.http3.server";
     private static final String HTTP3_FACTORY = "org.eclipse.jetty.http3.server.HTTP3ServerConnectionFactory";
+    private static final String QUICHE_MODULE = "org.eclipse.jetty.quic.quiche.server";
+    private static final String QUICHE_CONNECTOR = "org.eclipse.jetty.quic.quiche.server.QuicheServerConnector";
     // Websocket
     private static final String WEBSOCKET_MODULE = "org.eclipse.jetty.ee10.websocket.jakarta.server";
     private static final String WEBSOCKET_INITIALIZER =
@@ -39,7 +41,7 @@ final class LookupUtil {
     }
 
     static boolean isHttp3Loaded() {
-        return isLibraryLoaded(HTTP3_MODULE, HTTP3_FACTORY);
+        return isLibraryLoaded(HTTP3_MODULE, HTTP3_FACTORY) && isLibraryLoaded(QUICHE_MODULE, QUICHE_CONNECTOR);
     }
 
     static boolean isWebsocketLoaded() {
