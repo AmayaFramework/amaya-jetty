@@ -29,7 +29,7 @@ dependencies {
     // For http3 support (optionally)
     implementation group: 'org.eclipse.jetty.http3', name: 'jetty-http3-server', version: '12.1.1'
     implementation group: 'org.eclipse.jetty.quic', name: 'jetty-quic-quiche-server', version: '12.1.1'
-    implementation group: 'org.eclipse.jetty.quic', name: 'jetty-quic-quiche-jna', version: '12.1.1'
+    runtimeOnly group: 'org.eclipse.jetty.quic', name: 'jetty-quic-quiche-jna', version: '12.1.1'
     // For websocket support (optionally)
     implementation group: 'org.eclipse.jetty.ee10.websocket', name: 'jetty-ee10-websocket-jakarta-server', version: '12.1.1'
 }
