@@ -20,16 +20,18 @@ To install it, you will need:
 
 ```Groovy
 dependencies {
-    implementation group: 'io.github.amayaframework', name: 'amaya-jetty', version: '3.3.2-12.0.26'
+    implementation group: 'io.github.amayaframework', name: 'amaya-jetty', version: '3.3.2-12.1.1'
     // For alpn support (for ssl + http2, optionally)
-    implementation group: 'org.eclipse.jetty', name: 'jetty-alpn-server', version: '12.0.26'
-    implementation group: 'org.eclipse.jetty', name: 'jetty-alpn-java-server', version: '12.0.26'
+    implementation group: 'org.eclipse.jetty', name: 'jetty-alpn-server', version: '12.1.1'
+    implementation group: 'org.eclipse.jetty', name: 'jetty-alpn-java-server', version: '12.1.1'
     // For http2 support (optionally)
-    implementation group: 'org.eclipse.jetty.http2', name: 'jetty-http2-server', version: '12.0.26'
+    implementation group: 'org.eclipse.jetty.http2', name: 'jetty-http2-server', version: '12.1.1'
     // For http3 support (optionally)
-    implementation group: 'org.eclipse.jetty.http3', name: 'jetty-http3-server', version: '12.0.26'
+    implementation group: 'org.eclipse.jetty.http3', name: 'jetty-http3-server', version: '12.1.1'
+    implementation group: 'org.eclipse.jetty.quic', name: 'jetty-quic-quiche-server', version: '12.1.1'
+    runtimeOnly group: 'org.eclipse.jetty.quic', name: 'jetty-quic-quiche-jna', version: '12.1.1'
     // For websocket support (optionally)
-    implementation group: 'org.eclipse.jetty.ee10.websocket', name: 'jetty-ee10-websocket-jakarta-server', version: '12.0.26'
+    implementation group: 'org.eclipse.jetty.ee10.websocket', name: 'jetty-ee10-websocket-jakarta-server', version: '12.1.1'
 }
 ```
 
@@ -40,40 +42,40 @@ dependencies {
     <dependency>
         <groupId>io.github.amayaframework</groupId>
         <artifactId>amaya-jetty</artifactId>
-        <version>3.3.2-12.0.26</version>
+        <version>3.3.2-12.1.1</version>
     </dependency>
 
     <!-- For ALPN support (for SSL + HTTP/2, optionally) -->
     <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-alpn-server</artifactId>
-        <version>12.0.26</version>
+        <version>12.1.1</version>
     </dependency>
     <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-alpn-java-server</artifactId>
-        <version>12.0.26</version>
+        <version>12.1.1</version>
     </dependency>
 
     <!-- For HTTP/2 support (optionally) -->
     <dependency>
         <groupId>org.eclipse.jetty.http2</groupId>
         <artifactId>jetty-http2-server</artifactId>
-        <version>12.0.26</version>
+        <version>12.1.1</version>
     </dependency>
 
     <!-- For HTTP/3 support (optionally) -->
     <dependency>
         <groupId>org.eclipse.jetty.http3</groupId>
         <artifactId>jetty-http3-server</artifactId>
-        <version>12.0.26</version>
+        <version>12.1.1</version>
     </dependency>
     
     <!-- For Websocket support (optionally) -->
     <dependency>
         <groupId>org.eclipse.jetty.ee10.websocket</groupId>
         <artifactId>jetty-ee10-websocket-jakarta-server</artifactId>
-        <version>12.0.26</version>
+        <version>12.1.1</version>
     </dependency>
 ```
 
